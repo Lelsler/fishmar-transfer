@@ -3,6 +3,9 @@
 #___________________________________________________________________________________________________________#
 
 require(dplyr)
+require(statnet)
+require(igraph)
+
 #remove lists
 rm(list = ls())
 
@@ -22,8 +25,6 @@ dist = read.csv("/Users/mtn1/Desktop/R_projects/fishmar/RQ2/data/dist_cepii.csv"
 dist$Importer.ISO = dist$iso_o
 dist$Exporter.ISO = dist$iso_d
 
-
-
 #change the silly columnnames of the datafile
 colnames(gov_eff) = c("country","iso3", "1996", "1998", "2000", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016")
 
@@ -33,9 +34,9 @@ rownames(gov_eff) = gov_eff$iso3
 
 #flip the dataframe so that each gov. eff. indicator is in a separate row
 df = data.frame(ISO = row.names(gov_eff), stack(gov_eff))
-colnames(df) = c("iso3", "geff", "year") #change colnames to the like colnames in the landings data
+colnames(df) = c("Name", "geff", "Year") #change colnames to the like colnames in the landings data
 
-#this could be done with one dataframe I'm quite sure, maybe Chris knows how :)
+#this could be done with one dataframe I'm quite sure
 df_CT = df
 colnames(df_CT) = c("Importer.ISO", "geff.Importer", "Year")
 
@@ -59,7 +60,6 @@ data$Exporter.ISO = data$iso3
 tryout = merge(data, CT_trade)
 
 #merge distance data & stock estimate & trade data
-
 tryout = merge(tryout, dist)
 
 #calculate mean and standard deviations of importer and exporter governance
@@ -70,27 +70,58 @@ sd(na.omit(tryout$geff.Importer))
 sd(na.omit(tryout$geff.Exporter))
 
 #use dis cap which is the distance between capitals 
-
 l = lm(tryout$geff.Importer ~ tryout$Year)
 summary(l)
 
 #plots with exporter governance changes over time
 boxplot(tryout$geff.Exporter ~ tryout$Year)
 
-#boxplot(tryout$dist ~ tryout$Year)
 
+
+tryout = subset(tryout, Year == 2011)
+tryout = tryout[!is.na(tryout$geff.Exporter) & !is.na(tryout$geff.Importer), ]
 # construct network from trade data
-
-#construct network
-
 edgelist = tryout[, 1:2]
-
 tradenetwork = igraph::simplify(igraph::graph.data.frame(edgelist, directed=TRUE))
 nodeList = data.frame(Name = igraph::V(tradenetwork)$name, 
                        ID = c(0:(igraph::vcount(tradenetwork) - 1))) # create nodelist from tradenetwork
 nodeList <- cbind(nodeList, nodeDegree=igraph::degree(tradenetwork, v = igraph::V(tradenetwork), mode = "all")) #calculate node degree for all nodes in network
 
+edgelist$Exporter.ISO = as.character(edgelist$Exporter.ISO)
+edgelist$Importer.ISO = as.character(edgelist$Importer.ISO)
 
+
+sample = merge(nodeList, df, all=TRUE)
+sample = subset(sample, Year == 2011)
+sample = sample[!is.na(sample$nodeDegree), ]
+
+nv <- nrow(sample) #set size of network (all possible trading countries)
+net1 <- network.initialize(nv)
+network.vertex.names(x=net1) <- as.character(sample$Name) # get vertex names from node info file 
+net1[as.matrix(edgelist)] <- 1 # set edges
+
+set.vertex.attribute(x=net1 			# network 
+                     ,attrname="geff"     # name of attribute
+                     ,val=sample$geff)
+
+trade_est_1 <- ergm(net1~ edges	# density
+                    +gwidegree(decay = 0.1, fixed = TRUE),
+                    control=control.ergm(		# simulation tuning
+                      MCMC.samplesize=2000,	# networks drawn
+                      MCMC.burnin=500,		# initial throw-away
+                      seed=10)) 				# assure replicability
+
+summary(trade_est_1)
+
+
+
+
+
+
+
+
+
+############################## plots#########################################################
 plot(tradenetwork, vertex.color="pink", edge.color ="dark grey",
      vertex.size=nodeList$nodeDegree,
      edge.arrow.size=.1, vertex.label.color="black", vertex.label.cex=.2, rescale=FALSE)
@@ -105,5 +136,8 @@ plot(tryout2$Year, tryout2$super, xlab="Year", ylab= "Stock status CHL", pch=20,
 
 tryout3 = tryout[tryout$Exporter.ISO=="FLK", ]
 plot(tryout3$Year, tryout3$super, xlab="Year", ylab= "Stock status FLK", pch=20, ylim=c(0,1.2), col="blue", main="Stock status CHL")
+
+#write.csv(tryout, "toothfish_data.csv")
+
 
 
