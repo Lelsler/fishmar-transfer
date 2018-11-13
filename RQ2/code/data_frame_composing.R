@@ -32,6 +32,7 @@ colnames(gov_eff) = c("country","iso3", "1996", "1998", "2000", "2002", "2003", 
 gov_eff = gov_eff[, 2:20]
 rownames(gov_eff) = gov_eff$iso3
 
+
 #flip the dataframe so that each gov. eff. indicator is in a separate row
 df = data.frame(ISO = row.names(gov_eff), stack(gov_eff))
 colnames(df) = c("Name", "geff", "Year") #change colnames to the like colnames in the landings data
@@ -50,10 +51,10 @@ CT_trade = merge(CT_trade, df_CT2, all=TRUE)
 #filter the stock estimates for patagonian toothfish
 data = stock %>% filter(comm_name == "Patagonian toothfish")
 data$Year = data$year
+data$Name = data$iso3
 
 #take out a very general commodity class of the patagonian toothfish, but check later if it's needed
 CT_trade = CT_trade %>% filter(Commodity.Code != "30429")
-
 
 # merge the dataframes based on exporter iso
 data$Exporter.ISO = data$iso3
@@ -76,10 +77,8 @@ summary(l)
 #plots with exporter governance changes over time
 boxplot(tryout$geff.Exporter ~ tryout$Year)
 
-
-
 tryout = subset(tryout, Year == 2011)
-tryout = tryout[!is.na(tryout$geff.Exporter) & !is.na(tryout$geff.Importer), ]
+tryout = tryout[!is.na(tryout$geff.Exporter) & !is.na(tryout$geff.Importer) & !is.na(tryout$super), ]
 # construct network from trade data
 edgelist = tryout[, 1:2]
 tradenetwork = igraph::simplify(igraph::graph.data.frame(edgelist, directed=TRUE))
@@ -91,9 +90,12 @@ edgelist$Exporter.ISO = as.character(edgelist$Exporter.ISO)
 edgelist$Importer.ISO = as.character(edgelist$Importer.ISO)
 
 
-sample = merge(nodeList, df, all=TRUE)
-sample = subset(sample, Year == 2011)
+sample = merge(nodeList, df, all=TRUE) 
+sample = merge(sample, data, all=TRUE) 
+sample = subset(sample, Year == 2011) 
 sample = sample[!is.na(sample$nodeDegree), ]
+sample$cmsy13[is.na(sample$cmsy13)] = 0
+
 
 nv <- nrow(sample) #set size of network (all possible trading countries)
 net1 <- network.initialize(nv)
@@ -104,8 +106,15 @@ set.vertex.attribute(x=net1 			# network
                      ,attrname="geff"     # name of attribute
                      ,val=sample$geff)
 
+set.vertex.attribute(x=net1 			# network 
+                     ,attrname="cmsy13"     # name of attribute
+                     ,val=sample$cmsy13)
+
+
 trade_est_1 <- ergm(net1~ edges	# density
-                    +gwidegree(decay = 0.1, fixed = TRUE),
+                    +gwidegree(decay = 0.1, fixed = TRUE)
+                    + nodeicov('geff')
+                    +nodeocov('cmsy13'),
                     control=control.ergm(		# simulation tuning
                       MCMC.samplesize=2000,	# networks drawn
                       MCMC.burnin=500,		# initial throw-away
