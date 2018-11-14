@@ -8,13 +8,15 @@ require(dplyr)
 library(tidyr)
 
 #load required data
-gov_d = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/co_variates_data/governance/governance_effective_processed.csv") # governance effectiveness indicators
+goveff = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/co_variates_data/governance/governance_effective_processed.csv") # governance effectiveness indicators
 
-library(tibble)
-gov_d <- as_tibble(read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/co_variates_data/governance/governance_effective_processed.csv", stringsAsFactors = FALSE, check.names = FALSE))
+# delete X in front of the column names
+colnames(goveff) <- gsub("^X", "",  colnames(goveff))
 
-gather(gov_d, year, effe, -1)
+# point R to column names in df
+colnames(goveff) = c("country", "iso3", "1996", "1997", 1998:2016)
 
-gov_d %>%
-  gather(year, effe, 2:24)
+# re-format gov
+gov = goveff %>%
+  gather(t, gov_eff, -country, -iso3)
 

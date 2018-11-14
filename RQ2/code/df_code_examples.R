@@ -46,5 +46,16 @@ closeAllConnections()
 
 merge(x = DF1, y = DF2[ , c("Client", "LO")], by = "Client", all.x=TRUE)
 
+### merge data frames based on more than one column
+x <- data.frame(k1=c(NA,NA,3,4,5), k2=c(1,NA,NA,4,5), data=1:5)
+y <- data.frame(k1=c(NA,2,NA,4,5), k2=c(NA,NA,3,4,5), data=1:5)
+merge(x, y, by=c("k1","k2")) # NA's match
+z = left_join(x, y, by=c("k1","k2")) 
 
+### add a column and merge into the df
+#mean for 2001
+mean_gov_eff_2001 = data.frame(gov_eff$effectiveness[gov_eff$year==2000]+gov_eff$effectiveness[gov_eff$year==2002]/2, 2001, gov_eff$iso3)
+colnames(mean_gov_eff_2001) = c("effectiveness", "year", "iso3")
+
+gov_eff = rbind(mean_gov_eff_2001, gov_eff)
 
