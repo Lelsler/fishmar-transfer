@@ -8,7 +8,7 @@ require(dplyr)
 library(tidyr)
 
 #load required data
-cepi = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/comtrade/processed/timeseries/comtrade_1992_year1995_with_stocks.csv") # stocks and comtrade matches
+cepi = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/comtrade/processed/timeseries/comtrade_1992_year1998_with_stocks.csv") # stocks and comtrade matches
 gps = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/co_variates_data/global_preference/GPS_dataset_country_level/country.csv") # global preference survey indicators
 iso = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/comtrade/processed/timeseries/country_code_baci92_2.csv") # iso country codes for i,j 
 loc = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/co_variates_data/gravdata_cepii/dist_cepii.csv") # geographic distance (and other gravity data)
@@ -66,7 +66,7 @@ gov$t <- as.integer(gov$t)
 covariates= left_join(x=covariates, y=gov[, c("iso3","t","gov_effectiveness")], by=c("iso3","t"), all.x=TRUE) 
 
 # save data file comtrade_1992_year1995_with_stock and gps co-variate
-write.csv(covariates, "/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/comtrade/processed/comtrade_stock_covariates_92_16.csv")
+write.csv(covariates, "/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/comtrade/processed/ts_covariates/comtrade_stock_covariates_year98.csv")
 
 
 
