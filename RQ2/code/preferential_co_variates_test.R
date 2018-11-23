@@ -26,6 +26,9 @@ colnames(country_codes) = c("imp.country", "imp.iso2", "imp.iso3", "j")
 data1 = bind_rows(Rawdata.1995, Rawdata.1996, Rawdata.1997, Rawdata.1998) #gives warnings that don't matter
 data1 = data1%>% left_join(country_codes,  by = "j")
 
+data1 = data1 %>% select(t, Code.HS1992, Commodity, iso3, imp.iso3) 
+data1 = unique(data1) #to get rid of the double counting
+
 #logfile with in and out trades
 logfile = "new_links.csv"
 
@@ -137,6 +140,7 @@ for (k in years) {
   
 }
 
+#start here Laura
 #all new links
 nl = read.csv("new_links.csv") #this works only if commas in orignial file are removed
 
@@ -144,7 +148,7 @@ nl = read.csv("new_links.csv") #this works only if commas in orignial file are r
 
 
 
-
+# example for the preferential attachement
   network.table1 <- data1[data1$t == 1995 & data1$Commodity == "Anchovies fresh or chilled", ]
   edgeList1 <- data.frame(network.table1$iso3, network.table1$imp.iso3)
   colnames(edgeList1) = c("Exporter","Importer")
@@ -165,7 +169,7 @@ nl = read.csv("new_links.csv") #this works only if commas in orignial file are r
   
 nodeList1 = nodeList1 %>% rename(country = Name) 
 
-####for imports
+####for imports preferential attachment 
 anchoancho = nl %>% filter(commodity == "Anchovies fresh or chilled") %>% 
   left_join(nodeList1, by = "country")%>% filter(!is.na(nodeDegree1) & new.imports >0)
 
@@ -175,14 +179,10 @@ anchoancho = nl %>% filter(commodity == "Anchovies fresh or chilled") %>%
   ## number is the sum of 
   
   number = sum(anchoancho$new.imports)
-  
   anchoancho$pk = (anchoancho$new.imports / number)  
-  
   anchoancho$rk = anchoancho$pk / (anchoancho$frequency / length(nodeList1)) 
   
-  
-  
-  #require(ggplot2)
+  require(ggplot2)
   rkplot = ggplot(anchoancho, aes(x = nodeDegree1, y = rk)) + geom_point() + scale_y_continuous(trans='log')
   rkplot = rkplot + labs(title="test preferential attachment", y = "relative probability", x = "nodedegree")
   
@@ -193,19 +193,18 @@ anchoancho = nl %>% filter(commodity == "Anchovies fresh or chilled") %>%
   
   summary(lm(anchoancho$rk ~ anchoancho$nodeDegree1)) #quite a bit clearer with the rk metric
   
-  anchoancho$iso3 = anchoancho$country
   
+  #link to stockstatus data and see if there is a relationship to stock status
+  anchoancho$iso3 = anchoancho$country
    ancho.stock = data1 %>% filter(Commodity == "Anchovies fresh or chilled" & t == 1995) %>% 
     left_join(anchoancho, by = "iso3")
 
    summary(lm(cmsy13 ~ new.exports, data= ancho.stock))
    
-   
-   
    anchoancho2 = nl %>% filter(commodity == "Anchovies fresh or chilled") %>% 
      left_join(nodeList1, by = "country")%>% filter(!is.na(nodeDegree1) & new.exports >0)
    
-   #####for exports
+   #####for exports preferential attachement
    #( # new links added to nodes of degree n / total # of new links of new links in the network )
    
    ## number is the sum of 
@@ -213,9 +212,7 @@ anchoancho = nl %>% filter(commodity == "Anchovies fresh or chilled") %>%
    number = sum(anchoancho2$new.exports)
    
    anchoancho2$pk = (anchoancho2$new.exports / number)  
-   
    anchoancho2$rk = anchoancho2$pk / (anchoancho2$frequency / length(nodeList1))
-   
    anchoancho2$iso3 = anchoancho2$country
    
    ancho.stock2 = data1 %>% filter(Commodity == "Anchovies fresh or chilled" & t == 1995) %>% 
