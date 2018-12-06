@@ -7,9 +7,9 @@ import matplotlib.gridspec as gridspec
 import seaborn as sns
 import scipy
 
-cooperative = 1 # 0 = no effect of cooperative level on effort; 1 = effect of cooperative level on effort
+cooperative = 0 # 0 = no effect of cooperative level on effort; 1 = effect of cooperative level on effort
 ### Parameters #################################################################
-tmax = 200 # model runs
+tmax = 50 # model runs
 g = 0.2 #
 K = 100 #
 q = 0.03 #
@@ -64,11 +64,12 @@ def model(g, K, q, alpha, beta, gamma, c, k, o):
 
         # fishing effort
         EN[t+1] = EN[t]*np.exp(alpha*(gamma**(1/beta))*((q*EN[t]*N[t])**((beta-1)/beta))-c*EN[t])
-        EC[t+1] = EC[t]*np.exp(alpha*(gamma**(1/beta))*((q*EC[t]*N[t])**((beta-1)/beta))-c*EC[t])
+        EC[t+1] = 1/1+(np.exp(-k*(N[t]-o)))
+        # EC[t]*np.exp(alpha*(gamma**(1/beta))*((q*EC[t]*N[t])**((beta-1)/beta))-c*EC[t])
         if cooperative == 0:
             E[t+1] = E[t]*np.exp(alpha*(gamma**(1/beta))*((q*E[t]*N[t])**((beta-1)/beta))-c*E[t])
         if cooperative == 1:
-            E[t+1] = F[t]*EC[t+1] + (1-F[t])*EN[t+1]
+            E[t+1] = (1-F[t-1])*EC[t+1] + F[t-1]*EN[t+1]
         print E[t], "E"
 
         # price
@@ -92,7 +93,7 @@ def model(g, K, q, alpha, beta, gamma, c, k, o):
         F[t]= 1/(1+np.exp(-k*(I[t]-o))) # cooperative functionality is high if income is high
         print F[t], "F"
 
-    return N, E, H, I, R, F, EN, EC # output variables
+    return N, E, H, I, R, F, EN, EC, P # output variables
 
 ##### Run the model ############################################################
 
@@ -102,17 +103,19 @@ OUT3 = np.zeros(I.shape[0])
 OUT4 = np.zeros(I.shape[0])
 OUT5 = np.zeros(I.shape[0])
 OUT6 = np.zeros(I.shape[0])
+OUT7 = np.zeros(I.shape[0])
 
 for i in np.arange(0,tmax):
-        N, E, H, I, R, F, EN, EC = model(g, K, q, alpha, beta, gamma, c, k, o)
+        N, E, H, I, R, F, EN, EC, P = model(g, K, q, alpha, beta, gamma, c, k, o)
         OUT1[i]= N[i]
         OUT2[i]= E[i]
         OUT3[i]= H[i]
         OUT4[i]= I[i]
         OUT5[i]= R[i]
         OUT6[i]= F[i]
+        OUT7[i]= P[i]
 
-# np.save("./Desktop/RQ3_N.npy", OUT1)
+# np.save("./Desktop/RQ3_P.npy", OUT7)
 
 #####! PLOT ORIGINAL MODEL
 
@@ -120,7 +123,7 @@ fig = plt.figure()
 plt.plot(N)
 plt.plot(H)
 plt.xlim(0,tmax-3)
-plt.title("TEST",fontsize=17)
+plt.title("No cooperative functionality",fontsize=17)
 plt.xlabel("Time period",fontsize=15)
 plt.ylabel("Species biomass",fontsize=15)
 plt.legend(['biomass', 'catch'], loc='best')

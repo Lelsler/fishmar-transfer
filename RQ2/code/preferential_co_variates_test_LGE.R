@@ -35,13 +35,8 @@ cat("country, year, new imports, new exports, commodity", file=logfile, append=F
 
 commodities = unique(data1$Commodity)
 
-#start here Laura
 #all new links
 nl = read.csv("new_links.csv") #this works only if commas in orignial file are removed
-
-###### End 
-
-
 
 # example for the preferential attachement
   network.table1 <- data1[data1$t == 1995 & data1$Commodity == "Anchovies fresh or chilled", ]
@@ -62,13 +57,15 @@ nl = read.csv("new_links.csv") #this works only if commas in orignial file are r
   a = data.frame (o, d)
   nodeList1$frequency <- sapply(nodeList1$nodeDegree1, function(x){a$d[which(x==a$o)]})
   
-nodeList1 = nodeList1 %>% rename(country = Name) 
+nodeList1 = nodeList1 %>% rename("country" = "Name") 
 
-####for imports preferential attachment 
+names(nodeList1) <- c("country", "nodeDegree", "frequency")
+
+#### for imports preferential attachment 
 anchoancho = nl %>% filter(commodity == "Anchovies fresh or chilled") %>% 
   left_join(nodeList1, by = "country")%>% filter(!is.na(nodeDegree1) & new.imports >0)
 
-  
+write.csv(nodeList1, file = "nodeList1.csv")
   #( # new links added to nodes of degree n / total # of new links of new links in the network )
   
   ## number is the sum of 
