@@ -35,10 +35,9 @@ plt.plot(gov,p(gov),color = 'red')
 # fig.savefig('./Documents/SESYNC/GIT/fishmar/RQ2/figures/gov_exports.png',dpi=200)
 plt.show()
 
-
 # correlation and significance
 #linear regression
-slope, intercept, r_value, p_value, std_err = stats.linregress(gov, exp)
+slope, intercept, r_value, p_value, std_err = stats.linregress(gov, imp)
 print("r-squared gov imports:", r_value**2)
 # pearson significance of correlation
 stats.pearsonr(gov,imp) # output is  correlation coefficient and the corresponding p-value
