@@ -29,6 +29,8 @@ data1 = data1%>% left_join(country_codes,  by = "j")
 data1 = data1 %>% select(t, Code.HS1992, Commodity, iso3, imp.iso3) 
 data1 = unique(data1) #to get rid of the double counting
 
+
+
 #logfile with in and out trades
 logfile = "new_links.csv"
 
@@ -36,9 +38,10 @@ logfile = "new_links.csv"
 #Columns
 cat("country, year, new imports, new exports, commodity", file=logfile, append=FALSE, sep = "\n")
 
-
-
 commodities = unique(data1$Commodity)
+
+
+
 
 for (z in commodities){
 
@@ -63,6 +66,7 @@ imp = data.frame(as.factor(unique(data$imp.iso3)))
 
 colnames(exp) = "country"
 colnames(imp) = "country"
+
 
 country = rbind(exp, imp)
 
@@ -167,15 +171,14 @@ nl = read.csv("new_links.csv") #this works only if commas in orignial file are r
   a = data.frame (o, d)
   nodeList1$frequency <- sapply(nodeList1$nodeDegree1, function(x){a$d[which(x==a$o)]})
   
-nodeList1 = nodeList1 %>% rename(country = Name) 
+nodeList1 = nodeList1 %>% rename(country=Name) 
 
 ####for imports preferential attachment 
 anchoancho = nl %>% filter(commodity == "Anchovies fresh or chilled") %>% 
-  left_join(nodeList1, by = "country")%>% filter(!is.na(nodeDegree1) & new.imports >0)
+  left_join(nodeList1, by = "country") %>% filter(!is.na(nodeDegree1) & new.imports >0)
 
-  
-  #( # new links added to nodes of degree n / total # of new links of new links in the network )
-  
+
+  # new links added to nodes of degree n / total # of new links of new links in the network 
   ## number is the sum of 
   
   number = sum(anchoancho$new.imports)
@@ -183,16 +186,14 @@ anchoancho = nl %>% filter(commodity == "Anchovies fresh or chilled") %>%
   anchoancho$rk = anchoancho$pk / (anchoancho$frequency / length(nodeList1)) 
   
   require(ggplot2)
+  
   rkplot = ggplot(anchoancho, aes(x = nodeDegree1, y = rk)) + geom_point() + scale_y_continuous(trans='log')
   rkplot = rkplot + labs(title="test preferential attachment", y = "relative probability", x = "nodedegree")
-  
-  
+  rkplot
   #seems that there is preferential attachement for imports but not exports!
   summary(lm(anchoancho$new.imports ~ anchoancho$nodeDegree1))
   summary(lm(anchoancho$new.exports ~ anchoancho$nodeDegree1))
-  
   summary(lm(anchoancho$rk ~ anchoancho$nodeDegree1)) #quite a bit clearer with the rk metric
-  
   
   #link to stockstatus data and see if there is a relationship to stock status
   anchoancho$iso3 = anchoancho$country
