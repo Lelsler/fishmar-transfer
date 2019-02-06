@@ -25,7 +25,7 @@ Rawdata.1998 <- read.csv("/Users/mtn1/Nextcloud/FISHMAR-data/comtrade/processed/
 
 data1 = bind_rows(Rawdata.1995, Rawdata.1996, Rawdata.1997, Rawdata.1998) #gives warnings that don't matter
 
-data1 = data1 %>% select(t, iso3, iso3_imp, stockid, fao_area, super, Commodity, gov_effectiveness) %>%
+data1 = data1 %>% select(t, iso3,  stockid, fao_area, super, Commodity, gov_effectiveness) %>%
   rename(year=t, commodity = Commodity, country=iso3)
 # I took the "super" from the stock estimates, not entirely sure on that one
 
