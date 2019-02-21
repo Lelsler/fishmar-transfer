@@ -47,6 +47,7 @@ tra4 = na.omit(tra4)
 gps = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/co_variates_data/global_preference/GPS_dataset_country_level/country.csv") # global preference survey indicators
 iso = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/comtrade/processed/timeseries/country_code_baci92_2.csv") # iso country codes for i,j 
 loc = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/co_variates_data/gravdata_cepii/dist_cepii.csv") # geographic distance (and other gravity data)
+gov = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/co_variates_data/governance/governance_effective_processed.csv") # global preference survey indicators
 
 # join the global preference factors for importers and exporters
 colnames(gps)[colnames(gps)=="iso3"] <- "exp_iso3" 
@@ -59,6 +60,18 @@ setnames(tco, old=c("posrecip","negrecip","trust"), new=c("imp_posrecip", "imp_n
 # join cepii distance, colonial history, common language
 setnames(loc, old=c("iso_o","iso_d"), new=c("imp_iso3", "exp_iso3"))
 tco = left_join(x=tco, y = loc[ , c("imp_iso3","exp_iso3","comlang_ethno","colony","distcap")], all.x=TRUE) 
+
+## join governance effectiveness
+# new and change name columns
+gov$exp_iso3 <- gov$iso3
+colnames(gov)[colnames(gov)=="t"] <- "year" 
+# add gov for exporter
+tco = left_join(x=tco, y = gov[ , c("exp_iso3","year","gov_effectiveness")], all.x=TRUE) 
+colnames(tco)[colnames(tco)=="gov_effectiveness"] <- "exp_gov_eff" 
+# add gov for importer
+colnames(gov)[colnames(gov)=="exp_iso3"] <- "imp_iso3" 
+tco = left_join(x=tco, y = gov[ , c("imp_iso3","year","gov_effectiveness")], all.x=TRUE) 
+colnames(tco)[colnames(tco)=="gov_effectiveness"] <- "imp_gov_eff" 
 
 ##! change column old and new trade connections to numbers for calculations  
 ta = tco %>%
@@ -76,7 +89,7 @@ tat = ta %>%
 # save csv file 
 write.csv(tat, "/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/test_preferential/bilateral_newlinks_covariates.csv")
 
-# read file
+# load files
 tdc = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/test_preferential/bilateral_newlinks_covariates.csv") 
 
 
