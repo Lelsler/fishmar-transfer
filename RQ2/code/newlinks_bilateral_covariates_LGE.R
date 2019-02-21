@@ -76,3 +76,7 @@ tat = ta %>%
 # save csv file 
 write.csv(tat, "/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/test_preferential/bilateral_newlinks_covariates.csv")
 
+# read file
+tdc = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/test_preferential/bilateral_newlinks_covariates.csv") 
+
+
