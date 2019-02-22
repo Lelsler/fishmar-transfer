@@ -163,14 +163,15 @@ data <- status_home %>%
   # Add import stock status
   left_join(status_imports, by="iso3") %>% 
   # Calculate and sort by percent difference in status
-  mutate(pdiff=perc_diff(bbmsy, imp_bbmsy)) %>% 
+  mutate(pdiff=perc_diff(imp_bbmsy, bbmsy)) %>% 
   filter(!is.na(pdiff)) %>% 
   arrange(pdiff) %>% 
   # Add governance strength
   left_join(select(gov_orig, -country), by="iso3") %>% 
   mutate(strength=factor(strength, levels=c("weak", "moderate", "strong"))) %>% 
   rename(gov_strength=strength, gov_index=index) %>% 
-  select(iso3, country, gov_strength, gov_index, everything())
+  select(iso3, country, gov_strength, gov_index, everything()) %>% 
+  filter(nstocks>=10)
   
 
 # Plot

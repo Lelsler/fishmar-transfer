@@ -6,6 +6,7 @@ graphics.off()
 library(readr)
 library(dplyr)
 library(tidyverse)
+library(plotly)
 
 setwd("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/")
 
@@ -13,7 +14,7 @@ stock_status <- read.csv("./mexico/processed/data_RQ3_filtered.csv")
 monthly_effort <- read.csv("./mexico/processed/laura/RQ3_monthly_dataset_lge.csv")
 
 # clean names 
-setnames(stock_status, old=c("X...Coop_Id","Cooperative.name","Abalone","Clams","Lobsters","Sea.cucumber","Snails"), new=c("coop_id", "coop_name","abalone_stock","clam_stock","lobster_stock","seacucumber_stock","snail_stock"))
+setnames(stock_status, old=c("X...Coop_Id","Cooperative.name","Abalone","Clams","Lobsters","Sea.cucumber","Snails"), new=c("coop_id", "coop_name","stock_abalone","stock_clams","stock_lobsters","stock_seacucumber","stock_snails"))
 
 # select columns
 monthly_effort_select <- monthly_effort %>% select(ID.x, Coop_Id, Cooperative_name, State.x,Confederacion.x,Federacion.x,functionality.x,year,
@@ -31,14 +32,41 @@ setnames(monthly_effort_select, old=c("ID.x","Coop_Id","Cooperative_name","State
 stock_monthly <- left_join(monthly_effort_select,stock_status, by=c("coop_id","coop_name","year")) 
 
 # calc new columns for reference price M for each species
-# m_abalone = value_abalone/(ln(catch_abalone))
+stock_monthly$m_abalone = (stock_monthly$value_abalone/log(stock_monthly$catch_abalone))
+stock_monthly$m_clams = (stock_monthly$value_clams/log(stock_monthly$catch_clams))
+stock_monthly$m_lobsters = (stock_monthly$value_lobsters/log(stock_monthly$catch_lobsters))
+stock_monthly$m_seacucumber = (stock_monthly$value_seacucumber/log(stock_monthly$value_seacucumber))
+stock_monthly$m_snails = (stock_monthly$value_snails/log(stock_monthly$catch_snails))
 
 # calc new columns for harvest rate h for each species
-# h_abalone = catch_abalone/stock_abalone
+stock_monthly$h_abalone = stock_monthly$catch_abalone/stock_monthly$stock_abalone
+stock_monthly$h_clams = stock_monthly$catch_clams/stock_monthly$stock_clams
+stock_monthly$h_lobsters = stock_monthly$catch_lobsters/stock_monthly$stock_lobsters
+stock_monthly$h_seacucumber = stock_monthly$catch_seacucumber/stock_monthly$stock_seacucumber
+stock_monthly$h_snails = stock_monthly$catch_snails/stock_monthly$stock_snails
 
-write.csv(stock_monthly, '~/laura/data_monthly_lge.csv',row.names=FALSE)
+# save csv file
+write.csv(stock_monthly, './mexico/processed/laura/data_monthly_lge.csv',row.names=FALSE)
+
+# read csv
+stock_monthly <- read.csv("./mexico/processed/laura/data_monthly_lge.csv")
+
+plot(stock_monthly$m_abalone,stock_monthly$h_abalone)
+plot(stock_monthly$m_clams,stock_monthly$h_clams)
+plot(stock_monthly$m_lobsters,stock_monthly$h_lobsters)
+plot(stock_monthly$m_seacucumber,stock_monthly$h_seacucumber)
+plot(stock_monthly$m_snails,stock_monthly$h_snails)
 
 
+library(ggplot2)
+library(RColorBrewer)
+
+p <- ggplot(stock_monthly, aes(x=m_abalone, y=h_abalone, col=functionality)) +
+  geom_point() +
+  theme_bw() +
+  scale_color_gradientn(colours=brewer.pal(9, 'RdBu'), name="Functionality") +
+  xlab("Reference price") + ylab("Harvest rate abalone")
+p
 
 require(dplyr)
 library(tidyr)
