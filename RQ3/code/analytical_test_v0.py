@@ -1,5 +1,8 @@
 from scipy.optimize import *
 import numpy as np
+from sympy.solvers import solve
+from sympy import Symbol
+import matplotlib.pyplot as plt
 
 C=.2 #portion of cost
 xi=1
@@ -11,21 +14,48 @@ a=1
 p=1
 v=0.2
 Es=1
-L2=0 #effort-based cost
+L2range = .2 #effort-based cost
+Lrange = 2
+v = 0
 
-Lrange = np.arange(0,2.5,2.5/50)
-L2range=np.array([0,.25,.5])
+# Lrange = np.arange(0,2.)
+# L2range = np.array([0,.25,.5])
+Vrange = np.arange(0.01,5.0,0.1)
+Fsol_all = np.ones(len(Vrange))*(-100) #
+Fsol_all = np.ndarray(shape=(len(Vrange),3))-100
 
-def equations(c1,c,r,a):
-    dS = S*(r-a*S-F)
-    du = c1-c *(F-r)/a + (F/a) + V/a -(V*a*(F-r/a))/(F*(F-r))s
-    return F
+# variables
+Fsol = np.zeros(3)-100
 
-for i in np.arange(Lrange):
-    L = Lrange(i)
-    du(F)=(L2 - L*((F - r)/a + (Es*F)/a) + v*Es/a - (V*a*((F - r)/a + (Es*F)/a))/(F*(F - r)))
-    Fsol=vpasolve(du);
+# define symbol
+F = Symbol('F')
 
+def excl_access(L2,L,r,a,v,V):
+    du=(L2 - L*((F - r)/a + (F)/a) + v/a - (V*a*((F - r)/a + (F)/a))/(F*(F - r))) # %linear harvest cost + effort cost, slow institution exclusive access
+    Fs=solve(du, F)
+    Fs = np.array(Fs)
+    return Fs
 
-F = fsolve(du, F)
-print equations(F)
+for i in np.arange(len(Vrange)):
+        V = Vrange[i]
+        L = Lrange
+        L2 = L2range
+        Fs = excl_access(L2,L,r,a,v,V)
+        # Fs= -100 if Fs < 0 else Fs = Fs
+        Fsol_all[[i],0:len(Fs)] = Fs
+        # #evaluate data type if imaginary then = -100
+        # if Fsol == complex():
+        #     print "compl"
+        #     Fsol = -100
+        # if Fsol < 1:
+        #     Fsol = -100
+        #      #if randombool == True:np.nan
+
+Fa = Fsol_all[:,0]
+Fb = Fsol_all[:,1]
+Fc = Fsol_all[:,2]
+
+plt.scatter(Vrange,Fa) # plot matrix Fsol_all
+plt.scatter(Vrange,Fb) # plot matrix Fsol_all
+plt.ylim(-1,1)
+plt.show()

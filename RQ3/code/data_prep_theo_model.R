@@ -46,9 +46,9 @@ stock_monthly$h_seacucumber = stock_monthly$catch_seacucumber/stock_monthly$stoc
 stock_monthly$h_snails = stock_monthly$catch_snails/stock_monthly$stock_snails
 
 # save csv file
-<<<<<<< HEAD
 #write.csv(stock_monthly, './mexico/processed/laura/data_monthly_lge.csv',row.names=FALSE)
 
+################################# for plotting #########################################################
 # read csv
 stock_monthly <- read.csv("./mexico/processed/laura/data_monthly_lge.csv")
 
@@ -62,11 +62,11 @@ plot(stock_monthly$m_snails,stock_monthly$h_snails)
 library(ggplot2)
 library(RColorBrewer)
 
-p <- ggplot(stock_monthly, aes(x=m_abalone, y=catch_abalone, col=functionality)) +
+p <- ggplot(stock_monthly, aes(x=m_abalone, y=log2(stock_abalone), col=functionality)) +
   geom_point() +
   theme_bw() +
-  scale_color_gradientn(colours=brewer.pal(9, 'RdBu'), name="Functionality") +
-  xlab("Reference price") + ylab("Harvest abalone")
+  scale_color_gradientn(colours=brewer.pal(9, 'RdYlBu'), name="coop_id") +
+  xlab("Reference price") + ylab("Stock abalone")
 p
 
 ggsave(".Users/lauraelsler/documents/SESYNC/GIT/fishmar/RQ3/figures/abalone_hm.png", plot = last_plot())
@@ -78,7 +78,7 @@ p <- ggplot(stock_monthly, aes(x=m_clams, y=catch_clams, col=functionality)) +
   xlab("Reference price") + ylab("Harvest clams")
 p
 ggsave(".Users/lauraelsler/documents/SESYNC/GIT/fishmar/RQ3/figures/clams_hm.png", plot = last_plot())
-=======
+
 write.csv(stock_monthly, './mexico/processed/laura/data_monthly_lge.csv',row.names=FALSE)
 
 # read csv
