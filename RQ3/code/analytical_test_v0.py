@@ -20,7 +20,7 @@ v = 0
 
 # Lrange = np.arange(0,2.)
 # L2range = np.array([0,.25,.5])
-Vrange = np.arange(0.01,5.0,0.1)
+Vrange = np.arange(0.1,10.0,0.1)
 Fsol_all = np.ones(len(Vrange))*(-100) #
 Fsol_all = np.ndarray(shape=(len(Vrange),3))-100
 
@@ -31,8 +31,8 @@ Fsol = np.zeros(3)-100
 F = Symbol('F')
 
 def excl_access(L2,L,r,a,v,V):
-    du=(L2 - L*((F - r)/a + (F)/a) + v/a - (V*a*((F - r)/a + (F)/a))/(F*(F - r))) # %linear harvest cost + effort cost, slow institution exclusive access
-    Fs=solve(du, F)
+    du = (L2 - L*((F - r)/a + (F)/a) + v/a - (V*a*((F - r)/a + (F)/a))/(F*(F - r))) # %linear harvest cost + effort cost, slow institution exclusive access
+    Fs = solve(du, F)
     Fs = np.array(Fs)
     return Fs
 

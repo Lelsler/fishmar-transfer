@@ -90,6 +90,6 @@ tat = ta %>%
 write.csv(tat, "/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/test_preferential/bilateral_newlinks_covariates.csv")
 
 # load files
-tdc = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/test_preferential/bilateral_newlinks_covariates.csv") 
+#tdc = read.csv("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/test_preferential/bilateral_newlinks_covariates.csv") 
 
 
