@@ -4,7 +4,7 @@ graphics.off()
 
 # libraries
 library(readr)
-library(dplyr)
+#library(dplyr)
 library(tidyverse)
 library(plotly)
 

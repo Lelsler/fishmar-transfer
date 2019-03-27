@@ -6,8 +6,7 @@ graphics.off()
 
 setwd("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/")
 
-require(dplyr)
-library(tidyr)
+library(tidyverse)
 library(data.table)
 
 ### load required data
@@ -45,6 +44,23 @@ fish$collapse <- NA
 #Calculate trade collapse i.e. < 10% of maximum traded volume
 fish$collapse = ifelse(fish$t > fish$t_max & fish$q/fish$q_max < 0.1, 1, 0) 
 
+#Save to csv file
+#write.csv(fish, "/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/test_preferential/trade_collapse.csv")
+
+#Count trade collapses per spp group
+fish.collapse <- aggregate(fish$collapse,by = list(fish$group_name), FUN=sum, na.rm=TRUE, na.action=NULL)
+setnames(fish.collapse, old = c('Group.1','x'), new = c('group_name','trade_collapse'))
+
+#Total number of trades (per country pair & per year) 
+p <- fish %>% group_by(group_name) %>%
+  summarise(total_trades = length(unique(q)))
+fish.collapse = left_join(x=fish.collapse, y = p[ , c("group_name","total_trades")], all.x=TRUE) 
+  
+#Calculate relative frequency of collapse
+fish.collapse <-mutate(fish.collapse, relative_trade_collapse= total_trades/trade_collapse)
+
+#Save to csv file
+#write.csv(fish.collapse, "/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/test_preferential/trade_collapse_sppgroup.csv")
 
 
 
