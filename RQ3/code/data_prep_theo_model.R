@@ -7,9 +7,11 @@ library(readr)
 #library(dplyr)
 library(tidyverse)
 library(plotly)
+library(TTR)
 
 setwd("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/")
 
+# read files
 stock_status <- read.csv("./mexico/processed/data_RQ3_filtered.csv")
 monthly_effort <- read.csv("./mexico/processed/laura/RQ3_monthly_dataset_lge.csv")
 
@@ -61,6 +63,7 @@ plot(stock_monthly$m_snails,stock_monthly$h_snails)
 
 library(ggplot2)
 library(RColorBrewer)
+setwd("/Users/lauraelsler/Documents/SESYNC/GIT/fishmar/RQ3/")
 
 p <- ggplot(stock_monthly, aes(x=m_abalone, y=log2(stock_abalone), col=functionality)) +
   geom_point() +
@@ -69,44 +72,22 @@ p <- ggplot(stock_monthly, aes(x=m_abalone, y=log2(stock_abalone), col=functiona
   xlab("Reference price") + ylab("Stock abalone")
 p
 
-ggsave(".Users/lauraelsler/documents/SESYNC/GIT/fishmar/RQ3/figures/abalone_hm.png", plot = last_plot())
+ggsave("./figures/abalone_hm.png", plot = p)
 
-p <- ggplot(stock_monthly, aes(x=m_clams, y=catch_clams, col=functionality)) +
+o <- ggplot(stock_monthly, aes(x=m_clams, y=catch_clams, col=functionality)) +
   geom_point() +
   theme_bw() +
   scale_color_gradientn(colours=brewer.pal(9, 'RdBu'), name="Functionality") +
   xlab("Reference price") + ylab("Harvest clams")
-p
-ggsave(".Users/lauraelsler/documents/SESYNC/GIT/fishmar/RQ3/figures/clams_hm.png", plot = last_plot())
-
-write.csv(stock_monthly, './mexico/processed/laura/data_monthly_lge.csv',row.names=FALSE)
-
-# read csv
-stock_monthly <- read.csv("./mexico/processed/laura/data_monthly_lge.csv")
->>>>>>> 195d4b1246b1bdbadee530f090a4252b0bfbc048
-
-plot(stock_monthly$m_abalone,stock_monthly$h_abalone)
-plot(stock_monthly$m_clams,stock_monthly$h_clams)
-plot(stock_monthly$m_lobsters,stock_monthly$h_lobsters)
-plot(stock_monthly$m_seacucumber,stock_monthly$h_seacucumber)
-plot(stock_monthly$m_snails,stock_monthly$h_snails)
+o
+ggsave(".figures/clams_hm.png", plot = o)
 
 
-library(ggplot2)
-library(RColorBrewer)
-
-p <- ggplot(stock_monthly, aes(x=m_abalone, y=h_abalone, col=functionality)) +
+m <- ggplot(stock_monthly, aes(x=m_lobsters, y=catch_lobsters, col=functionality)) +
   geom_point() +
   theme_bw() +
   scale_color_gradientn(colours=brewer.pal(9, 'RdBu'), name="Functionality") +
-  xlab("Reference price") + ylab("Harvest rate abalone")
-p
+  xlab("Reference price") + ylab("Harvest lobster")
+m
+ggsave(".figures/lobsters_hm.png", plot = m)
 
-require(dplyr)
-library(tidyr)
-library(data.table)
-
-### load required data
-dta = read.csv("./mexico/processed/laura/data_monthly_lge.csv") 
-
-### 
