@@ -11,8 +11,8 @@ import scipy
 tmax = 100 # number of time steps to run model
 
 # species dynamics
-r = 0.1 # refers to the maximum rate of population growth
-K = 1 # carrying capacity
+r = 0.5 # refers to the maximum rate of population growth
+K = 80 # carrying capacity
 
 # fishing
 q = 1 # catchability coefficient
@@ -20,6 +20,8 @@ q = 1 # catchability coefficient
 # price and income
 p = 1 # fixed constant price
 c = 0.5 # fixed cost per trip
+beta = 1. #
+gamma = .25 #
 
 # cooperative functionality
 m = 1
@@ -42,26 +44,28 @@ C = np.zeros(tmax) # catch species
 I = np.zeros(tmax) # total income
 R = np.zeros(tmax) # total revenue
 
+# effort
+E = np.zeros(tmax)
+
 # cooperative functionality
 F = np.zeros(tmax) # cooperative functionality
 
 # initial set-up
 C[0] = 0.1
-N[0] = 1
-E[0] = 1
+N[0] = 100
 E[0] = 1
 
 ## define model
-def model(r, K, q, gamma, beta, c, m):
+def model(r, K, q, gamma, beta, p, c, m):
     for t in np.arange(0,tmax-1):
         # population logistic growth dynamics
-        N[t+1] = N1[t] + r* N[t]*((K-N[t])/ K) - C[t]
+        N[t+1] = N[t] + r* N[t]*((K-N[t])/ K) - C[t]
 
         # fishing effort
-        E[t+1]= E[t] + C[t] *p - E[t] *c *F[t] #
+        E[t+1]= E[t] + C[t] *p - E[t] *c #*F[t] #
 
         # catch
-        C[t] = N[t] *E[t] *q *l # catch given effort and population size
+        C[t] = N[t] *E[t] *q # catch given effort and population size
 
         # income
         I[t] = C[t] *p - (E[t] *c)
@@ -82,7 +86,7 @@ OUT5 = np.zeros(I.shape[0])
 OUT6 = np.zeros(I.shape[0])
 
 for i in np.arange(0,tmax):
-        N, E, C, I, R, F = model(r, K, q, gamma, beta, c, m)
+        N, E, C, I, R, F = model(r, K, q, gamma, beta, p, c, m)
         OUT1[i]= N[i]
         OUT2[i]= E[i]
         OUT3[i]= C[i]
@@ -93,7 +97,6 @@ for i in np.arange(0,tmax):
 # np.save("./Dropbox/PhD/OUT1.npy", OUT1)
 
 #####! PLOT ORIGINAL MODEL
-
 fig = plt.figure()
 plt.plot(OUT1)
 plt.plot(OUT3)
@@ -101,6 +104,6 @@ plt.xlim(0,tmax-3)
 plt.title("TEST",fontsize=17)
 plt.xlabel("Time period",fontsize=15)
 plt.ylabel("Species biomass",fontsize=15)
-plt.legend(['biomass', 'catch', loc='best')
+plt.legend(['biomass', 'catch'], loc='best')
 #fig.savefig('fish.png',dpi=300)
 plt.show()

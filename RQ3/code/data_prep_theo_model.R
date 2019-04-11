@@ -72,22 +72,40 @@ p <- ggplot(stock_monthly, aes(x=m_abalone, y=log2(stock_abalone), col=functiona
   xlab("Reference price") + ylab("Stock abalone")
 p
 
-ggsave("./figures/abalone_hm.png", plot = p)
+ggsave("./figures/abalone_sm.png", plot = p)
 
-o <- ggplot(stock_monthly, aes(x=m_clams, y=catch_clams, col=functionality)) +
+u <- ggplot(stock_monthly, aes(x=m_abalone, y=(catch_abalone), col=functionality)) +
+  geom_point() +
+  theme_bw() +
+  scale_color_gradientn(colours=brewer.pal(9, 'RdYlBu'), name="coop_id") +
+  xlab("Reference price") + ylab("Harvest abalone")
+u
+
+ggsave("./figures/abalone_hm.png", plot = u)
+
+v <- ggplot(stock_monthly, aes(x=m_abalone, y=(catch_abalone/stock_abalone), col=functionality)) +
+  geom_point() +
+  theme_bw() +
+  scale_color_gradientn(colours=brewer.pal(9, 'RdYlBu'), name="coop_id") +
+  xlab("Reference price") + ylab("Harvest rate abalone")
+v
+
+ggsave("./figures/abalone_fm.png", plot = v)
+
+o <- ggplot(stock_monthly, aes(x=m_clams, y=stock_clams, col=functionality)) +
   geom_point() +
   theme_bw() +
   scale_color_gradientn(colours=brewer.pal(9, 'RdBu'), name="Functionality") +
-  xlab("Reference price") + ylab("Harvest clams")
+  xlab("Reference price") + ylab("Stock clams")
 o
-ggsave(".figures/clams_hm.png", plot = o)
+ggsave(".figures/clams_sm.png", plot = o)
 
 
-m <- ggplot(stock_monthly, aes(x=m_lobsters, y=catch_lobsters, col=functionality)) +
+m <- ggplot(stock_monthly, aes(x=m_lobsters, y=stock_lobsters, col=functionality)) +
   geom_point() +
   theme_bw() +
   scale_color_gradientn(colours=brewer.pal(9, 'RdBu'), name="Functionality") +
-  xlab("Reference price") + ylab("Harvest lobster")
+  xlab("Reference price") + ylab("Stock lobster")
 m
-ggsave(".figures/lobsters_hm.png", plot = m)
+ggsave(".figures/lobsters_sm.png", plot = m)
 
