@@ -5,6 +5,7 @@ import numpy as np
 from sympy.solvers import solve
 from sympy import Symbol
 import matplotlib.pyplot as plt
+#from scipy.optimize import fsolve
 
 V=1 #marginal benefit scaling factor
 r=2 #stock growth rate
@@ -25,7 +26,7 @@ F = Symbol('F')
 def excl_access(L2,L,r,a,v,V):
     du = (L2 - L*((F - r)/a + (F)/a) + v/a - (V*a*((F - r)/a + (F)/a))/(F*(F - r))) #slow institution exclusive access
     #du=(L2 - L*((F - r)/a) - (V*a*((F - r)/a ))/(F*(F - r))) #fast institution, open access
-    Fs = solve(du, F)
+    Fs = solve(du, F) # try to use nsolve
     Fs = np.array(Fs)
     return Fs
 
