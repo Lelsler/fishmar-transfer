@@ -75,6 +75,9 @@ summary = left_join(x=summary, y=k[ , c('group_name','clustering_avg', 'gini_avg
 ### save data
 write.csv(summary, '/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/test_preferential/summary_statistics.csv')
 
+###read data 
+summary =read.csv('/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/test_preferential/summary_statistics.csv')
+
 ### plot
 # simple scatter plots of trade collapse
 a <- plot(summary$trade_collapse, summary$super, main="Correlations summary statistics",
