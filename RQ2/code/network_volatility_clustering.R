@@ -3,12 +3,26 @@
 library(tidyverse)
 library(igraph)
 library(ineq)
+library(sjstats)
+library(glmmTMB)
 
 # Directories
 datadir <- "~/Nextcloud/FISHMAR-data/rq2/test_preferential"
 datadir2 = "~/Nextcloud/FISHMAR-data/rq2/trade_duration_AG"
+datadir3 = "~/Nextcloud/FISHMAR-data/fao_stock_status"
+datadir4 = "~/Nextcloud/FISHMAR-data/comtrade/processed/timeseries"
+
 # Read data
 data_orig <- read.csv(file.path(datadir, "CT_fish_trade92.csv"), as.is=T)
+
+stocks  = read.csv(file.path(datadir3, "1950_2017_FAO_bbmsy_timeseries_merge.csv"), as.is=T)
+match = read.csv(file.path(datadir4,"matchingstocksHS92.csv"), as.is=T)
+
+
+trade = trade %>% select(Shortdescription.HS1992, group_name)%>%
+  distinct()
+
+
 
 
 # Format data
@@ -20,8 +34,14 @@ data <- data_orig %>%
          exp_iso3=iso3, imp_iso3=imp.iso3, value_usd=v, quantity_mt=q, group=group_name) %>% 
   select(imp_iso3, group, hs92code, hs92desc, exp_iso3, year, value_usd, quantity_mt) %>% 
   arrange(imp_iso3, group, hs92code, hs92desc, exp_iso3, year)
-  
 
+match = match %>% select(Shortdescription.HS1992, comm_name, sci_name)%>% 
+  rename(hs92desc=Shortdescription.HS1992) 
+
+match = data %>% left_join(match)
+
+stocks = stocks %>% select(sci_name, comm_name, super, year) %>% 
+  left_join(match) %>% filter(!is.na(super))%>% filter(!is.na(hs92desc))
 # Build data
 ################################################################################
 
@@ -118,8 +138,17 @@ volatility_clustering = results %>% left_join(trade_duration_sum)%>%
   left_join(trade_collapse_sum)
 
 
+volatility_clustering_stocks = volatility_clustering %>% left_join(stocks) %>%
+  distinct()
+
+volatility_clustering_stocks$total_collapse = scale(volatility_clustering_stocks$total_collapse)
+volatility_clustering_stocks$gini = scale(volatility_clustering_stocks$gini)
+volatility_clustering_stocks$clustering = scale(volatility_clustering_stocks$clustering)
 
 
+super$year = as.factor(super$year)
+m = glmmTMB(super ~ clustering + gini+ total_collapse + (1|group) , family=gaussian(link="identity"),  data = volatility_clustering_stocks)
+            
 p <- ggplot(results, aes(x=year, y=gini, group=group, col=group)) +
   geom_line()+ scale_y_continuous(limits = c(0, 1))
 p
