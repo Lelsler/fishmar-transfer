@@ -34,28 +34,71 @@ loc = read.csv(file.path(datadir6, "dist_cepii.csv"), as.is=T) # geographic dist
 colnames(mat1)[colnames(mat1)=="Shortdescription.HS1992"] <- "HS92" # an alternative way of reanming is # mat1 = mat1 %>% rename(HS92 = Shortdescription.HS1992)
 colnames(mat2)[colnames(mat2)=="X...Shortdescription.HS1992"] <- "HS92" 
 colnames(tra)[colnames(tra)=="t"] <- "year" 
-# join files by columns
-mat1= left_join(x=mat1, y = mat2, by= "HS92",  all.x=TRUE) # mat1 mat2
+gini$X <- NULL # remove column X from gov
+names(gini)[1]<-"group_name" # change column name
+
+### calculate average BBmsy
+# match trade and stock data
+mat1= left_join(x=mat1, y = mat2, by= "HS92",  all.x=TRUE) # join files by columns
 # clean mat1: only two columns, delete duplicates, omit na´s
 mat3 = mat1 %>% distinct() %>% select(sci_name, group_name)
 mat3 = unique(mat3)
 mat3 = na.omit(mat3)
-# add mat3 to stocks
-stocks = left_join(x=stocks, y = mat3) 
-
-### calculate average BBmsy
+stocks = left_join(x=stocks, y = mat3) # add mat3 to stocks
 mean_super <- aggregate(super ~ group_name + iso3 + year, stocks, mean) # calculate mean per group, country, year
-tra = left_join(x=tra, y = mean_super) # match trade and mean_super
-tra = na.omit(tra) # omit na´s
-trade_mean_super <- aggregate(super ~ group_name + year, tra, mean) # mean BBmsy of export countries per year and spp group
-colnames(trade_mean_super)[colnames(trade_mean_super)=="super"] <- "per_trade" # change column name
+tra_b = left_join(x=tra, y = mean_super) # match trade and mean_super
+tra_b = na.omit(tra_b) # omit na´s
+# calculate mean bbmsy
+trade_mean_super <- aggregate(super ~ group_name + year, tra_b, mean) # mean BBmsy of export countries per year and spp group
+colnames(trade_mean_super)[colnames(trade_mean_super)=="super"] <- "tradelink_super" # change column name
 # calculate weighted average i.e. super weighted by traded volume
-tra$weigh <- tra$v *tra$super
-weighted_mean_super <- aggregate(weigh ~ group_name + year, tra, mean)
-weighted_mean_super$v <- aggregate(v ~ group_name + year, tra, mean)
-weighted_mean_super$weighted <- weighted_mean_super$weigh/weighted_mean_super$v$v 
+tra_b$weigh <- tra_b$v *tra_b$super
+weighted_mean_super <- aggregate(weigh ~ group_name + year, tra_b, sum)
+weighted_mean_super$v <- aggregate(v ~ group_name + year, tra_b, sum)
+weighted_mean_super$weighted_super <- weighted_mean_super$weigh/weighted_mean_super$v$v 
 # add average bbmsy by trade and weighted by volume into bbmsy
-bbmsy = weighted_mean_super %>% select(group_name, year, weighted) %>% 
+bbmsy = weighted_mean_super %>% select(group_name, year, weighted_super) %>% 
   left_join(trade_mean_super) 
+
+### trade collapses: number and percent
+names(collapse)[2]<-"year" # change column name
+coll <- aggregate(collapse ~ group_name + year, collapse, sum) # sum collapses per spp group per year
+names(coll)[3]<-"number_collapse" # change column name
+coll2 <- collapse %>% group_by(group_name, year) %>% summarise(n()) # count occurrences of trades in a spp group per year i.e. conditional occurrences
+names(coll2)[3]<-"number_trade" # change column name
+trade_collapse = left_join(x=coll, y = coll2) # match coll and coll2
+trade_collapse$percent_collapse <- trade_collapse$number_collapse/trade_collapse$number_trade # calculate percentage collapsed
+trade_collapse$number_trade <- NULL # remove column 
+
+### trade duration
+names(duration)[2]<-"year" # change column name
+trade_duration <- aggregate(duration ~ group_name + year, duration, mean) # sum collapses per spp group per year
+names(trade_duration)[3]<-"avg_duration" # change column name
+
+### governance effectiveness: average effectiveness of exporters
+names(gov)[2]<-"year" # change column name
+gov$X <- NULL # remove column X from gov
+tra_gov = left_join(x=tra, y = gov) # match trade and governance
+tra_gov = na.omit(tra_gov) # omit na´s
+tra_gov2 <- aggregate(gov_effectiveness ~ group_name + year, tra_gov, mean) # mean governance of trade links per spp group per year
+names(tra_gov2)[3]<-"tradelink_gov" # change column name
+# calculate weighted average i.e. governance weighted by traded volume
+tra_gov$weigh <- tra_gov$v *tra_gov$gov_effectiveness
+weighted_gov <- aggregate(weigh ~ group_name + year, tra_gov, sum)
+weighted_gov$v <- aggregate(v ~ group_name + year, tra, sum)
+weighted_gov$weighted_gov <- weighted_gov$weigh/weighted_gov$v$v 
+# add average governance by trade and weighted by volume into governance
+governance = weighted_gov %>% select(group_name, year, weighted_gov) %>% 
+  left_join(tra_gov2) 
+
+### create one dataframe
+# join all timeseries
+data <- left_join(bbmsy, gini) %>%
+  left_join(., trade_collapse) %>%
+  left_join(., trade_duration) %>%
+  left_join(., governance) 
+# write csv file
+write.csv(data, file.path(datadir, "covariates_timeseries.csv"))
+
 
 
