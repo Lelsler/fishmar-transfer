@@ -3,7 +3,8 @@
 library(tidyverse)
 
 # Directories
-datadir <- "~/Nextcloud/FISHMAR-data/rq2/test_preferential"
+#datadir <- "~/Nextcloud/FISHMAR-data/rq2/test_preferential" # MNO
+datadir <- "~/Documents/SESYNC/Files/FISHMAR-data/rq2/test_preferential" # LGE
 
 # Read data
 data_orig <- read.csv(file.path(datadir, "CT_fish_trade92.csv"), as.is=T)
@@ -68,6 +69,9 @@ for(i in 1:length(groups)){
 }
   
 # })
+
+# save results file
+write.csv(results, file.path(datadir, "link_turnover.csv"))
 
 
 turnover_avg <- results %>% 

@@ -6,7 +6,9 @@ graphics.off()
 ### libraries
 require(dplyr)
 library(tidyr)
+library(tidyverse)
 library(data.table)
+library(ggplot2)
 
 ### directories
 datadir <- "~/Documents/SESYNC/Files/FISHMAR-data/rq2/test_preferential"
@@ -25,7 +27,7 @@ collapse <- read.csv(file.path(datadir, "trade_collapse.csv"), as.is=T) # trade 
 duration <- read.csv(file.path(datadir2, "exports_test.csv"), as.is=T) # trade duration
 gini = read.csv(file.path(datadir, "gini_and_clustering.csv"), as.is=T) # gini and clustering
 gov = read.csv(file.path(datadir5, "governance_effective_processed.csv"), as.is=T) # governance
-loc = read.csv(file.path(datadir6, "dist_cepii.csv"), as.is=T) # geographic distance
+# loc = read.csv(file.path(datadir6, "dist_cepii.csv"), as.is=T) # geographic distance
 # add link turnover, top 3 importers % traded volume
 # consider GPS data, profitability
 
@@ -98,7 +100,19 @@ data <- left_join(bbmsy, gini) %>%
   left_join(., trade_duration) %>%
   left_join(., governance) 
 # write csv file
-write.csv(data, file.path(datadir, "covariates_timeseries.csv"))
+#write.csv(data, file.path(datadir, "covariates_timeseries.csv"))
+data <- read.csv(file.path(datadir, "covariates_timeseries.csv"))
 
+par(mfrow=c(2,1)) 
+lines(year, weighted_super, type=opts[i]) 
+lines(year, clustering, type=opts[i]) 
 
-
+x <- c(1:5); y <- x # create some data
+par(pch=22, col="red") # plotting symbol and color
+par(mfrow=c(2,4)) # all plots on one page
+opts = c("p","l",809+´7"o","b","c","s","S","h")
+for(i in 1:length(data)){
+  heading = paste("indicator=",data[i])
+  plot(x, y, type="n", main=heading)
+  lines(x, y, type=opts[i])
+}
