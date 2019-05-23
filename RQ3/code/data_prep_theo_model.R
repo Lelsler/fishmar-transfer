@@ -87,7 +87,7 @@ u <- ggplot(stock_monthly, aes(x=(m_abalone), y=log2(stock_abalone), col=functio
   geom_point() +
   theme_bw() +
   scale_color_gradientn(colours=brewer.pal(9, 'RdYlBu'), name="coop_id") +
-  xlab("Marginal cost benefit") + ylab("Stock abalone")
+  xlab("Marginal cost benefit") + ylab("Logged stock abalone")
 u
 
 ggsave("./figures/abalone_sm.png", plot = p)
@@ -96,7 +96,7 @@ v <- ggplot(stock_monthly, aes(x=m_abalone, y=log2(catch_abalone/stock_abalone),
   geom_point() +
   theme_bw() +
   scale_color_gradientn(colours=brewer.pal(9, 'RdYlBu'), name="coop_id") +
-  xlab("Reference price") + ylab("Harvest rate abalone")
+  xlab("Reference price") + ylab("Logged harvest rate abalone")
 v
 
 ggsave("./figures/abalone_fm.png", plot = v)
