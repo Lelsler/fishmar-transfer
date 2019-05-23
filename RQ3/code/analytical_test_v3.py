@@ -18,7 +18,7 @@ L2range = 0.2 #marginal effort dependent cost #in org 0 or .2
 # Lrange = np.arange(0,2.) #harvest-volume dependent cost
 # L2range = np.array([0,.25,.5]) #marginal effort dependent cost
 # Vrange = np.arange(0.01,5.0,0.1) #reference price alt1
-Vrange = np.arange(0.1,10.0,0.1) #reference price alt2
+Vrange = np.arange(0.1,3.0,0.1) #reference price alt2
 Fsol_excl = np.zeros(shape=(len(Vrange),3))-100 #matrix fit exclusive access solutions
 Fsol_open = np.zeros(shape=(len(Vrange),3))-100 #matrix fit open access solutions
 
@@ -31,7 +31,7 @@ def excl_access(L2,L,r,a,v,V):
     #Fs = solve(du, F) # try to use nsolve
     Fs = nsolve(du,1) # try to use nsolve
     Fsx = np.array(Fs)
-    return Fs
+    return Fsx
 
 def open_access(L2,L,r,a,v,V):
     #fast institution, open access
@@ -39,18 +39,18 @@ def open_access(L2,L,r,a,v,V):
     #Fk = solve(de, F) # try to use nsolve
     Fk = nsolve(de,1) # try to use nsolve
     Fkx = np.array(Fk)
-    return Fk
+    return Fkx
 
-for i in np.arange(len(Vrange)):
-        V = Vrange[i]
-        L = Lrange
-        L2 = L2range
-        Fsx = excl_access(L2,L,r,a,v,V)
-        Fkx = open_access(L2,L,r,a,v,V)
-        print "Fs", Fs
-        print "Fk", Fk
-        Fsol_excl[[i],0:3] = Fs
-        Fsol_open[[i],0:3] = Fk
+#for i in np.arange(len(Vrange)):
+V = 1# Vrange[i]
+L = Lrange
+L2 = L2range
+Fsx = excl_access(L2,L,r,a,v,V)
+#Fkx = open_access(L2,L,r,a,v,V)
+print "Fs", Fsx
+#print "Fk", Fkx
+Fsol_excl[[i],0:3] = Fsx
+#Fsol_open[[i],0:3] = Fkx
 
 Fsol_excl = np.log2(Fsol_excl/(r/2)) # log transform and relative to MSY
 Fsol_open = np.log2(Fsol_open/(r/2)) # log transform and relative to MSY

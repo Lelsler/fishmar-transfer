@@ -82,7 +82,7 @@ summary =read.csv('/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/rq2/te
 # simple scatter plots of trade collapse
 a <- plot(summary$trade_collapse, summary$super, main="Correlations summary statistics",
      xlab="trade collapse", ylab="stock status", pch=16) 
-ggsave(filename="/Users/lauraelsler/Documents/SESYNC/GIT/fishmar/RQ2/figures/scatter_sumstat_tcollapse_ss.pdf", plot=a)
+ggsave(filename="/Users/lauraelsler/Documents/SESYNC/GIT/fishmar/RQ2/figures/scatter_sumstat_tcollapse_ss.png", plot=a)
 
 b <- plot(summary$relative_trade_collapse, summary$super, main="Correlations summary statistics",
      xlab="relative trade collapse", ylab="stock status", pch=19) 
@@ -108,9 +108,12 @@ g <- plot(summary$gini_avg$x, summary$super, main="Correlations summary statisti
           xlab="gini", ylab="stock status", pch=19) 
 ggsave(filename="/Users/lauraelsler/Documents/SESYNC/GIT/fishmar/RQ2/figures/scatter_sumstat_gini_ss.pdf", plot=g)
 
+#pdf("/Users/lauraelsler/Documents/SESYNC/GIT/fishmar/RQ2/figures/scatter_sumstat_clustering_ss.pdf")
+
 h <- plot(summary$clustering_avg$x, summary$super, main="Correlations summary statistics",
           xlab="clustering", ylab="stock status", pch=19) 
 ggsave(filename="/Users/lauraelsler/Documents/SESYNC/GIT/fishmar/RQ2/figures/scatter_sumstat_clustering_ss.pdf", plot=h)
+#dev.off()
 
 # scatter plots sub-divided per spp group
 # ggplot(data = summary, aes(x=gini, y=super, colour =group_name)) + geom_point()+

@@ -92,7 +92,7 @@ u
 
 ggsave("./figures/abalone_sm.png", plot = p)
 
-v <- ggplot(stock_monthly, aes(x=m_abalone, y=(catch_abalone/stock_abalone), col=functionality)) +
+v <- ggplot(stock_monthly, aes(x=m_abalone, y=log2(catch_abalone/stock_abalone), col=functionality)) +
   geom_point() +
   theme_bw() +
   scale_color_gradientn(colours=brewer.pal(9, 'RdYlBu'), name="coop_id") +
