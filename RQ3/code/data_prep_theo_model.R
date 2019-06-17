@@ -15,6 +15,7 @@ setwd("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/")
 stock_status <- read.csv("./mexico/processed/data_RQ3_filtered.csv")
 monthly_effort <- read.csv("./mexico/processed/laura/RQ3_monthly_dataset_lge.csv")
 catchability <- read.csv("./mexico/processed/laura/coop_catchability_coeffecient.csv")
+bio <- read.csv("./mexico/processed/biological_data_RQ3.csv")
 
 # clean names 
 setnames(stock_status, old=c("X...Coop_Id","Cooperative.name","Abalone","Clams","Lobsters","Sea.cucumber","Snails"), new=c("coop_id", "coop_name","stock_abalone","stock_clams","stock_lobsters","stock_seacucumber","stock_snails"))
@@ -58,7 +59,33 @@ stock_monthly$c_lobsters = stock_monthly$days_lobsters*stock_monthly$boats_lobst
 stock_monthly$c_seacucumber = stock_monthly$days_seacucumber*stock_monthly$boats_seacucumber*stock_monthly$q_seacucumber
 stock_monthly$c_snails = stock_monthly$days_snails*stock_monthly$boats_snails*stock_monthly$q_snails
 
-# save csv file
+
+### add bmsy
+# create individual files
+colnames(bio)[colnames(bio)=="Subregion"] <- "coop_name" 
+ab <- bio[(bio$Group=="Abalone"),]
+cl <- bio[(bio$Group=="Clams"),]
+lo <- bio[(bio$Group=="Lobsters"),]
+se <- bio[(bio$Group=="Sea cucumber"),]
+sn <- bio[(bio$Group=="Snails"),]
+
+# change column names 
+colnames(ab)[colnames(ab)=="Bmsy"] <- "Bmsy_abalone" 
+colnames(cl)[colnames(cl)=="Bmsy"] <- "Bmsy_clams" 
+colnames(lo)[colnames(lo)=="Bmsy"] <- "Bmsy_lobsters" 
+colnames(se)[colnames(se)=="Bmsy"] <- "Bmsy_seacucumber" 
+colnames(sn)[colnames(sn)=="Bmsy"] <- "Bmsy_snails" 
+
+# merge sub-files (bio)
+ab <- merge(ab[ ,c("coop_name","Bmsy_abalone")],cl[ ,c("coop_name","Bmsy_clams")],by="coop_name",all=T)
+ab <- merge(ab,lo[ ,c("coop_name","Bmsy_lobsters")],by="coop_name",all=T)
+ab <- merge(ab,se[ ,c("coop_name","Bmsy_seacucumber")],by="coop_name",all=T)
+ab <- merge(ab,sn[ ,c("coop_name","Bmsy_snails")],by="coop_name",all=T)
+
+# add to main data
+stock_monthly <- merge(stock_monthly,ab,by="coop_name",all=T)
+
+### save csv file
 #write.csv(stock_monthly, './mexico/processed/laura/data_monthly_lge.csv',row.names=FALSE)
 
 ################################# for plotting #########################################################
@@ -76,45 +103,43 @@ library(RColorBrewer)
 setwd("/Users/lauraelsler/Documents/SESYNC/GIT/fishmar/RQ3/")
 
 # figures for abalone
-p <- ggplot(stock_monthly, aes(x=(m_abalone), y=log2(stock_abalone), col=functionality)) +
+p <- ggplot(stock_monthly, aes(x=(m_abalone), y=log2(stock_abalone/Bmsy_abalone), col=functionality)) +
   geom_point() +
   theme_bw() +
   scale_color_gradientn(colours=brewer.pal(9, 'RdYlBu'), name="coop_id") +
-  xlab("Reference price") + ylab("Stock abalone")
+  xlab("Marginal benefit") + ylab("B/Bmsy abalone")
 p
+#ggsave("./figures/abalone_sm.png", plot = p)
 
-u <- ggplot(stock_monthly, aes(x=(m_abalone), y=log2(stock_abalone), col=functionality)) +
+v <- ggplot(stock_monthly, aes(x=m_clams, y=log2(stock_clams/Bmsy_clams), col=functionality)) +
   geom_point() +
   theme_bw() +
   scale_color_gradientn(colours=brewer.pal(9, 'RdYlBu'), name="coop_id") +
-  xlab("Marginal cost benefit") + ylab("Logged stock abalone")
-u
-
-ggsave("./figures/abalone_sm.png", plot = p)
-
-v <- ggplot(stock_monthly, aes(x=m_abalone, y=log2(catch_abalone/stock_abalone), col=functionality)) +
-  geom_point() +
-  theme_bw() +
-  scale_color_gradientn(colours=brewer.pal(9, 'RdYlBu'), name="coop_id") +
-  xlab("Reference price") + ylab("Logged harvest rate abalone")
+  xlab("Marginal benefit") + ylab("B/Bmsy clams")
 v
+#ggsave("./figures/clams_sm.png", plot = v)
 
-ggsave("./figures/abalone_fm.png", plot = v)
-
-o <- ggplot(stock_monthly, aes(x=m_clams, y=stock_clams, col=functionality)) +
+o <- ggplot(stock_monthly, aes(x=m_lobsters, y=log2(stock_lobsters/Bmsy_lobsters), col=functionality)) +
   geom_point() +
   theme_bw() +
   scale_color_gradientn(colours=brewer.pal(9, 'RdBu'), name="Functionality") +
-  xlab("Reference price") + ylab("Stock clams")
+  xlab("Marginal benefit") + ylab("B/Bmsy lobsters")
 o
-ggsave(".figures/clams_sm.png", plot = o)
+#ggsave(".figures/lobsters_sm.png", plot = o)
 
-
-m <- ggplot(stock_monthly, aes(x=m_lobsters, y=stock_lobsters, col=functionality)) +
+m <- ggplot(stock_monthly, aes(x=m_seacucumber, y=log2(stock_seacucumber/Bmsy_seacucumber), col=functionality)) +
   geom_point() +
   theme_bw() +
   scale_color_gradientn(colours=brewer.pal(9, 'RdBu'), name="Functionality") +
-  xlab("Reference price") + ylab("Stock lobster")
+  xlab("Reference price") + ylab("Stock sea cucumber")
 m
-ggsave(".figures/lobsters_sm.png", plot = m)
+#ggsave(".figures/seacucumber_sm.png", plot = m)
+
+n <- ggplot(stock_monthly, aes(x=m_snails, y=log2(stock_snails/Bmsy_snails), col=functionality)) +
+  geom_point() +
+  theme_bw() +
+  scale_color_gradientn(colours=brewer.pal(9, 'RdBu'), name="Functionality") +
+  xlab("Reference price") + ylab("Stock snails")
+n
+#ggsave(".figures/snails_sm.png", plot = n)
 
