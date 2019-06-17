@@ -20,14 +20,14 @@ datadir6 = "~/Documents/SESYNC/Files/FISHMAR-data/rq2/co_variates_data/gravdata_
 
 ### read data
 tra <- read.csv(file.path(datadir, "CT_fish_trade92.csv"), as.is=T) # trade data 
-stocks  = read.csv(file.path(datadir3, "1950_2017_FAO_bbmsy_timeseries_merge.csv"), as.is=T) # stocks data
-mat1 = read.csv(file.path(datadir4,"matchingstocksHS92.csv"), as.is=T) #  trade and stocks name
-mat2 = read.csv(file.path(datadir,"trade_groups_for_new_links92.csv"), as.is=T) # trade and group name
+stocks  <- read.csv(file.path(datadir3, "1950_2017_FAO_bbmsy_timeseries_merge.csv"), as.is=T) # stocks data
+mat1 <- read.csv(file.path(datadir4,"matchingstocksHS92.csv"), as.is=T) #  trade and stocks name
+mat2 <- read.csv(file.path(datadir,"trade_groups_for_new_links92.csv"), as.is=T) # trade and group name
 collapse <- read.csv(file.path(datadir, "trade_collapse.csv"), as.is=T) # trade collapse
 duration <- read.csv(file.path(datadir2, "exports_test.csv"), as.is=T) # trade duration
-gini = read.csv(file.path(datadir, "gini_and_clustering.csv"), as.is=T) # gini and clustering
-gov = read.csv(file.path(datadir5, "governance_effective_processed.csv"), as.is=T) # governance
-# loc = read.csv(file.path(datadir6, "dist_cepii.csv"), as.is=T) # geographic distance
+gini <- read.csv(file.path(datadir, "gini_and_clustering.csv"), as.is=T) # gini and clustering
+gov <- read.csv(file.path(datadir5, "governance_effective_processed.csv"), as.is=T) # governance
+# loc <- read.csv(file.path(datadir6, "dist_cepii.csv"), as.is=T) # geographic distance
 # add link turnover, top 3 importers % traded volume
 # consider GPS data, profitability
 
@@ -93,26 +93,72 @@ weighted_gov$weighted_gov <- weighted_gov$weigh/weighted_gov$v$v
 governance = weighted_gov %>% select(group_name, year, weighted_gov) %>% 
   left_join(tra_gov2) 
 
-### create one dataframe
-# join all timeseries
-data <- left_join(bbmsy, gini) %>%
-  left_join(., trade_collapse) %>%
-  left_join(., trade_duration) %>%
-  left_join(., governance) 
-# write csv file
-#write.csv(data, file.path(datadir, "covariates_timeseries.csv"))
-data <- read.csv(file.path(datadir, "covariates_timeseries.csv"))
+### create one dataframe ## MO
+# # join all timeseries
+# data <- left_join(bbmsy, gini) %>%
+#   left_join(., trade_collapse) %>%
+#   left_join(., trade_duration) %>%
+#   left_join(., governance) 
+# # write csv file
+# #write.csv(data, file.path(datadir, "covariates_timeseries.csv"))
+# data <- read.csv(file.path(datadir, "covariates_timeseries.csv"))
+# 
+# par(mfrow=c(2,1)) 
+# lines(year, weighted_super, type=opts[i]) 
+# lines(year, clustering, type=opts[i]) 
+# 
+# datadir <- "~/Nextcloud/FISHMAR-data/rq2/test_preferential"
+# 
+# x <- c(1:5); y <- x # create some data
+# par(pch=22, col="red") # plotting symbol and color
+# par(mfrow=c(2,4)) # all plots on one page
+# opts = c("p","l",809+´7"o","b","c","s","S","h")
+# for(i in 1:length(data)){
+#   heading = paste("indicator=",data[i])
+#   plot(x, y, type="n", main=heading)
+#   lines(x, y, type=opts[i])
+# }
 
-par(mfrow=c(2,1)) 
-lines(year, weighted_super, type=opts[i]) 
-lines(year, clustering, type=opts[i]) 
 
-x <- c(1:5); y <- x # create some data
-par(pch=22, col="red") # plotting symbol and color
-par(mfrow=c(2,4)) # all plots on one page
-opts = c("p","l",809+´7"o","b","c","s","S","h")
-for(i in 1:length(data)){
-  heading = paste("indicator=",data[i])
-  plot(x, y, type="n", main=heading)
-  lines(x, y, type=opts[i])
-}
+#### Panel plot: script can also be started here, all covariates, correct and select
+time_data <- read.csv(file.path(datadir, "timeseries.csv"), as.is=T)
+names(time_data)[1]<-"group_name" # change column name
+
+## fix trade duration
+# calculate mean, subtract value, add new calculated column
+means = time_data%>%group_by(year, predictor)%>%
+  summarise(mean_predictors= mean(value))
+time_data <- left_join(time_data,means)
+time_data$diff <- time_data$mean_predictors/time_data$value
+
+# to conditionally indexing df$x, conditionally index the replacement vector df$y
+index <- time_data$predictor == "average duration trades"
+time_data$value[index] <- (time_data$diff[index]) 
+
+# correct values per predictor 
+time_data$value[time_data$predictor == "average duration trades"] <- time_data$diff[time_data$predictor == "average duration trades"] 
+time_data$value[time_data$predictor == "percent collapsed"] <- time_data$diff[time_data$predictor == "percent collapsed"] 
+
+# re-name
+time_data$predictor[time_data$predictor=="weighted_super"] = "B/Bmsy"
+time_data$predictor[time_data$predictor=="average duration trades"] = "relative trade duration"
+time_data$predictor[time_data$predictor=="clustering"] = "clustering coefficient"
+names(time_data)[1]<-"species_group" # change column name
+
+## plot and save full panel: all spp, all covariates
+ggplot(data = time_data, aes(x=year, y = value, colour = species_group)) + geom_line() +
+  facet_wrap(~predictor,ncol = 2, scales = "free")
+
+ggsave("~/Documents/SESYNC/GIT/fishmar/RQ2/figures/network_timeseries.png", width = 18, height = 20, units = "cm")
+
+## plot for EE presentation
+# remove except 6 spp groups & 3 predictors, rename 
+k <- time_data[(time_data$species_group == "coalfish") | (time_data$species_group == "cod") | (time_data$species_group == "crab") | (time_data$species_group == "eel") | (time_data$species_group == "octopus") | (time_data$species_group == "plaice") | (time_data$species_group == "shark"),] 
+o <- k[(k$predictor == "B/Bmsy") | (k$predictor == "clustering coefficient") | (k$predictor == "relative trade duration"),] 
+
+# plot and save
+ggplot(data = o, aes(x=year, y = value, colour = species_group)) + geom_line() +
+  facet_wrap(~predictor,ncol = 2, scales = "free") 
+
+ggsave("~/Documents/SESYNC/GIT/fishmar/RQ2/figures/network_timeseries_EE.png", width = 18, height = 20, units = "cm")
+
