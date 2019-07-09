@@ -42,14 +42,14 @@ names(gini)[1]<-"group_name" # change column name
 ### calculate average BBmsy
 # match trade and stock data
 mat1= left_join(x=mat1, y = mat2, by= "HS92",  all.x=TRUE) # join files by columns
-# clean mat1: only two columns, delete duplicates, omit na´s
+# clean mat1: only two columns, delete duplicates, omit na??s
 mat3 = mat1 %>% distinct() %>% select(sci_name, group_name)
 mat3 = unique(mat3)
 mat3 = na.omit(mat3)
 stocks = left_join(x=stocks, y = mat3) # add mat3 to stocks
 mean_super <- aggregate(super ~ group_name + iso3 + year, stocks, mean) # calculate mean per group, country, year
 tra_b = left_join(x=tra, y = mean_super) # match trade and mean_super
-tra_b = na.omit(tra_b) # omit na´s
+tra_b = na.omit(tra_b) # omit na??s
 # calculate mean bbmsy
 trade_mean_super <- aggregate(super ~ group_name + year, tra_b, mean) # mean BBmsy of export countries per year and spp group
 colnames(trade_mean_super)[colnames(trade_mean_super)=="super"] <- "tradelink_super" # change column name
@@ -81,7 +81,7 @@ names(trade_duration)[3]<-"avg_duration" # change column name
 names(gov)[2]<-"year" # change column name
 gov$X <- NULL # remove column X from gov
 tra_gov = left_join(x=tra, y = gov) # match trade and governance
-tra_gov = na.omit(tra_gov) # omit na´s
+tra_gov = na.omit(tra_gov) # omit na??s
 tra_gov2 <- aggregate(gov_effectiveness ~ group_name + year, tra_gov, mean) # mean governance of trade links per spp group per year
 names(tra_gov2)[3]<-"tradelink_gov" # change column name
 # calculate weighted average i.e. governance weighted by traded volume
@@ -112,7 +112,7 @@ governance = weighted_gov %>% select(group_name, year, weighted_gov) %>%
 # x <- c(1:5); y <- x # create some data
 # par(pch=22, col="red") # plotting symbol and color
 # par(mfrow=c(2,4)) # all plots on one page
-# opts = c("p","l",809+´7"o","b","c","s","S","h")
+# opts = c("p","l",809+??7"o","b","c","s","S","h")
 # for(i in 1:length(data)){
 #   heading = paste("indicator=",data[i])
 #   plot(x, y, type="n", main=heading)
@@ -156,9 +156,10 @@ ggsave("~/Documents/SESYNC/GIT/fishmar/RQ2/figures/network_timeseries.png", widt
 k <- time_data[(time_data$species_group == "coalfish") | (time_data$species_group == "cod") | (time_data$species_group == "crab") | (time_data$species_group == "eel") | (time_data$species_group == "octopus") | (time_data$species_group == "plaice") | (time_data$species_group == "shark"),] 
 o <- k[(k$predictor == "B/Bmsy") | (k$predictor == "clustering coefficient") | (k$predictor == "relative trade duration"),] 
 
+
 # plot and save
 ggplot(data = o, aes(x=year, y = value, colour = species_group)) + geom_line() +
-  facet_wrap(~predictor,ncol = 2, scales = "free") 
+  facet_wrap(~predictor,ncol = 3, scales = "free") 
 
-ggsave("~/Documents/SESYNC/GIT/fishmar/RQ2/figures/network_timeseries_EE.png", width = 18, height = 20, units = "cm")
+ggsave("~/Documents/SESYNC/GIT/fishmar/RQ2/figures/network_timeseries_EE.png", width = 25, height = 10, units = "cm")
 

@@ -98,48 +98,4 @@ plot(stock_monthly$m_lobsters,stock_monthly$h_lobsters)
 plot(stock_monthly$m_seacucumber,stock_monthly$h_seacucumber)
 plot(stock_monthly$m_snails,stock_monthly$h_snails)
 
-library(ggplot2)
-library(RColorBrewer)
-setwd("/Users/lauraelsler/Documents/SESYNC/GIT/fishmar/RQ3/")
-
-# figures for abalone
-p <- ggplot(stock_monthly, aes(x=(m_abalone), y=log2(stock_abalone/Bmsy_abalone), col=functionality)) +
-  geom_point() +
-  theme_bw() +
-  scale_color_gradientn(colours=brewer.pal(9, 'RdYlBu'), name="coop_id") +
-  xlab("Marginal benefit") + ylab("B/Bmsy abalone")
-p
-#ggsave("./figures/abalone_sm.png", plot = p)
-
-v <- ggplot(stock_monthly, aes(x=m_clams, y=log2(stock_clams/Bmsy_clams), col=functionality)) +
-  geom_point() +
-  theme_bw() +
-  scale_color_gradientn(colours=brewer.pal(9, 'RdYlBu'), name="coop_id") +
-  xlab("Marginal benefit") + ylab("B/Bmsy clams")
-v
-#ggsave("./figures/clams_sm.png", plot = v)
-
-o <- ggplot(stock_monthly, aes(x=m_lobsters, y=log2(stock_lobsters/Bmsy_lobsters), col=functionality)) +
-  geom_point() +
-  theme_bw() +
-  scale_color_gradientn(colours=brewer.pal(9, 'RdBu'), name="Functionality") +
-  xlab("Marginal benefit") + ylab("B/Bmsy lobsters")
-o
-#ggsave(".figures/lobsters_sm.png", plot = o)
-
-m <- ggplot(stock_monthly, aes(x=m_seacucumber, y=log2(stock_seacucumber/Bmsy_seacucumber), col=functionality)) +
-  geom_point() +
-  theme_bw() +
-  scale_color_gradientn(colours=brewer.pal(9, 'RdBu'), name="Functionality") +
-  xlab("Reference price") + ylab("Stock sea cucumber")
-m
-#ggsave(".figures/seacucumber_sm.png", plot = m)
-
-n <- ggplot(stock_monthly, aes(x=m_snails, y=log2(stock_snails/Bmsy_snails), col=functionality)) +
-  geom_point() +
-  theme_bw() +
-  scale_color_gradientn(colours=brewer.pal(9, 'RdBu'), name="Functionality") +
-  xlab("Reference price") + ylab("Stock snails")
-n
-#ggsave(".figures/snails_sm.png", plot = n)
 
