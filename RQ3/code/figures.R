@@ -13,6 +13,8 @@ library(RColorBrewer)
 setwd("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/")
 # read csv
 stock_monthly <- read.csv("./mexico/processed/laura/data_monthly_lge.csv")
+model_ <- read.csv("/Users/lauraelsler/Documents/MATLAB/solutions_exclusive_rq3.csv")
+model <- read.csv("/Users/lauraelsler/Documents/MATLAB/solutions_open_rq3.csv")
 
 ################################# for plotting #########################################################
 setwd("/Users/lauraelsler/Documents/SESYNC/GIT/fishmar/RQ3/")
@@ -57,4 +59,25 @@ n <- ggplot(stock_monthly, aes(x=m_snails, y=log2(stock_snails/Bmsy_snails), col
   xlab("Reference price") + ylab("B/Bmsy snails")
 n
 #ggsave(".figures/snails_sm.png", plot = n)
+
+
+################################# for plotting #########################################################
+stock_monthly$binary_funct <- ifelse(stock_monthly$functionality > 8.5,1,0)
+
+ggplot(stock_monthly, aes(x=(m_lobsters), y=log2(stock_lobsters/Bmsy_lobsters), col=functionality)) +
+  geom_point() +
+  facet_wrap( ~ binary_funct) +
+  theme_bw() +
+  scale_color_gradientn(colours=brewer.pal(9, 'RdBu'), name="Functionality") +
+  xlab("Reference price") + ylab("B/Bmsy lobsters")
+
+
+ggplot(stock_monthly, aes(x=(m_abalone), y=log2(stock_abalone/Bmsy_abalone), col=functionality)) +
+  geom_point() +
+  facet_wrap( ~ binary_funct) +
+  theme_bw() +
+  scale_color_gradientn(colours=brewer.pal(9, 'RdBu'), name="Functionality") +
+  xlab("Reference price") + ylab("B/Bmsy abalone")
+
+
 

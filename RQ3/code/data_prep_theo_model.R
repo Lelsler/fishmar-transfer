@@ -52,14 +52,6 @@ stock_monthly$h_snails = stock_monthly$catch_snails/stock_monthly$stock_snails
 # add catchability coefficients for each cooperative (I first did this after reading the csv file in case there is an error)
 stock_monthly= left_join(x=stock_monthly, y = catchability, by= "coop_id",  all.x=TRUE) # stock_monthly, catchability
 
-# calc new columns for effort-dependent cost for each species
-stock_monthly$c_abalone = stock_monthly$days_abalone*stock_monthly$boats_abalone*stock_monthly$q_abalone
-stock_monthly$c_clams = stock_monthly$days_clams*stock_monthly$boats_clams*stock_monthly$q_clams
-stock_monthly$c_lobsters = stock_monthly$days_lobsters*stock_monthly$boats_lobsters*stock_monthly$q_lobsters
-stock_monthly$c_seacucumber = stock_monthly$days_seacucumber*stock_monthly$boats_seacucumber*stock_monthly$q_seacucumber
-stock_monthly$c_snails = stock_monthly$days_snails*stock_monthly$boats_snails*stock_monthly$q_snails
-
-
 ### add bmsy
 # create individual files
 colnames(bio)[colnames(bio)=="Subregion"] <- "coop_name" 
