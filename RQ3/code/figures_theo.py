@@ -33,10 +33,10 @@ df3 = pd.read_csv('/Users/lauraelsler/Documents/MATLAB/solutions_exclusive_rq3.c
 # transpose and transform to numpy arrays
 df2= df2.transpose()
 df2=df2.values
-df2=np.nan_to_num(df2)
+# df2=np.nan_to_num(df2)
 df3= df3.transpose()
 df3=df3.values
-df3=np.nan_to_num(df3)
+# df3=np.nan_to_num(df3)
 
 # set working directory
 os.chdir("/Users/lauraelsler/Documents/SESYNC/GIT/fishmar/RQ3/")
@@ -48,8 +48,8 @@ plt.ylabel("catch $t$",fontsize=20, **hfont)
 ###! Scatter plot only data
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
-plt.scatter(m_abalone, np.log2(stock_abalone/bmsy_abalone),c=(funct), s=30, marker="s", cmap='viridis')
-plt.title("abalone", fontsize= 25, **hfont)
+plt.scatter(m_lobsters, np.log2(stock_lobsters/bmsy_lobsters),c=(funct), s=30, marker="s", cmap='viridis')
+plt.title("lobsters", fontsize= 25, **hfont)
 plt.xlabel("reference price",fontsize=20, **hfont)
 plt.ylabel("log2(b/bmsy)",fontsize=20, **hfont)
 plt.ylim(0,6)
@@ -61,40 +61,45 @@ cb.ax.tick_params(labelsize=12)
 plt.show()
 
 ###! Scatter plot data and model
-x = np.linspace(0, 400000, 101) # x axis
+x = np.linspace(0, 5E5, 101) # x axis
 
 fig = plt.figure()
 fig.subplots_adjust(bottom=0.15, left= 0.15)
 # add the first axes using subplot populated with predictions
 ax1 = fig.add_subplot(111)
-plt.scatter(m_abalone, np.log2(stock_abalone),c=(funct), s=30, marker="s", cmap='viridis')
+plt.scatter(m_lobsters, np.log2(stock_lobsters/bmsy_lobsters),c=(funct), s=30, marker="s", cmap='viridis')
 # add the second axes using subplot with
 ax2 = fig.add_subplot(111, sharex=ax1, frameon=False)
-line1, = ax2.plot(df2[:,0], color="silver")
-line2, = ax2.plot(df2[:,1], color="black")
-line3, = ax2.plot(df3[:,0], color="green")
-line4, = ax2.plot(df3[:,1], color="orange")
+line1, = ax2.plot(x,df2[:,0], color="red", linewidth=3)
+line2, = ax2.plot(x,df2[:,1], color="red",linewidth=3)
+line3, = ax2.plot(x,df3[:,0], color="black",linewidth=3)
+line4, = ax2.plot(x,df3[:,1], color="black",linewidth=3)
 # x-axis
-ax1.set_xticklabels(np.arange(2001,2016,2), rotation=45, fontsize= 14)
-ax1.set_xlim(10,tmax-2)
-ax1.set_xlabel("Year",fontsize=20, **hfont)
-ax2.set_xticklabels(np.arange(2001,2016,2), rotation=45, fontsize= 14)
-ax2.set_xlim(10,tmax-2)
-ax2.set_xlabel("Year",fontsize=20, **hfont)
+# ax1.set_xticklabels(np.arange(2001,2016,2), rotation=45, fontsize= 14)
+ax1.set_xlim(0,5E5)
+# ax1.set_xlabel("Year",fontsize=20, **hfont)
+# ax2.set_xticklabels(np.arange(2001,2016,2), rotation=45, fontsize= 14)
+# ax2.set_xlim(10,tmax-2)
+ax2.set_xlabel("reference price",fontsize=20, **hfont)
+# ax2.yaxis.tick_right()
+# ax2.yaxis.set_label_position("right")
+# # y-axis
+ax1.set_ylabel("B/Bmsy", rotation=90, labelpad=5, fontsize=20, **hfont)
+ax1.set_ylim(-1,6)
+# ax1.tick_params(axis='y', labelsize=14)
+# ax2.set_ylabel("Mantle length $cm$", rotation=270, color='silver', labelpad=22, fontsize=20, **hfont)
 ax2.yaxis.tick_right()
 ax2.yaxis.set_label_position("right")
-# y-axis
-ax1.set_ylabel("Catch $tons$", rotation=90, labelpad=5, fontsize=20, **hfont)
-ax1.set_ylim(0,3E5)
-ax1.tick_params(axis='y', labelsize=14)
-ax2.set_ylabel("Mantle length $cm$", rotation=270, color='silver', labelpad=22, fontsize=20, **hfont)
-ax2.yaxis.tick_right()
-ax2.yaxis.set_label_position("right")
-ax2.tick_params(axis='y', colors='silver', labelsize=14)
-ax2.set_ylim(0,140)
+# ax2.tick_params(axis='y', colors='silver', labelsize=14)
+ax2.set_ylim(-1,2)
 plt.gcf().subplots_adjust(bottom=0.15,right=0.9)
 # legend
-plt.legend([line1, line2, line3, line4], ["MLM", "EDM", "BEM", "Data"], loc=1, fontsize= 12)
+plt.title('lobsters', fontsize=20, **hfont)
+plt.legend([line1, line3], ["open access", "exclusive access"], loc=1, fontsize= 12)
+#colorbar
+# cb = plt.colorbar()
+# cb.set_label('functionality', rotation=270, labelpad=40, fontsize = 22, **hfont)
+# cb.ax.tick_params(labelsize=12)
 # save and show
-# fig.savefig('./Dropbox/PhD/Resources/Squid/Squid/CODE/Squid/FIGS/ts_catch.pdf',dpi=300)
+# fig.savefig('./figures/lobsters_sm_dp.png',dpi=300)
 plt.show()

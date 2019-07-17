@@ -17,8 +17,8 @@ v=0.2;
 Es=1;
 L2=0; %effort-based cost
 
-Lrange=[0 2]; %volume-based cost
-L2range=[0 .2]; %effort-based cost
+Lrange=[0 .2]; %volume-based cost
+L2range=[0 2]; %effort-based cost
 Vrange=[0.01:(3-.01)/100:3]; %reference price
 writematrix(Vrange,'solutions_x_rq3.csv'); %LGE new
 
@@ -112,7 +112,7 @@ for L_val=1:length(Lrange)
             Fsols=sort(Fsols,'descend');
         end
         Ssols=log2(2-Fsols/(r/2));
-        writematrix(Ssols,'solutions_onerun_rq3.csv'); %LGE new
+        writematrix(Ssols,'solutions_exclusive_rq3.csv'); %LGE new
         plot0=plot(Vrange,Ssols','k','LineWidth',4);
         plot0(2).LineStyle='--';
         %    plot0=scatter(Lrange,Fsols(1,:)','.k','LineWidth',2);
@@ -134,7 +134,7 @@ for L_val=1:length(Lrange)
             Fsols=sort(Fsols,'descend');
         end
         Ssols=log2(2-Fsols/(r/2));
-        writematrix(Ssols,'solutions_fast_rq3.csv'); %LGE new
+        writematrix(Ssols,'solutions_open_rq3.csv'); %LGE new
         plot0=plot(Vrange,Ssols','r','LineWidth',2);
         plot0(2).LineStyle='--';
         
