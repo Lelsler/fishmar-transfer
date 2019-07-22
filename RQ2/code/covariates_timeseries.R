@@ -107,20 +107,11 @@ governance = weighted_gov %>% select(group_name, year, weighted_gov) %>%
 # lines(year, weighted_super, type=opts[i]) 
 # lines(year, clustering, type=opts[i]) 
 # 
-# datadir <- "~/Nextcloud/FISHMAR-data/rq2/test_preferential"
-# 
-# x <- c(1:5); y <- x # create some data
-# par(pch=22, col="red") # plotting symbol and color
-# par(mfrow=c(2,4)) # all plots on one page
-# opts = c("p","l",809+??7"o","b","c","s","S","h")
-# for(i in 1:length(data)){
-#   heading = paste("indicator=",data[i])
-#   plot(x, y, type="n", main=heading)
-#   lines(x, y, type=opts[i])
-# }
 
-
-#### Panel plot: script can also be started here, all covariates, correct and select
+####################################################################################
+#### Panel plot: script can also be started here! (all covariates, correct and select)
+# datadir <- "~/Nextcloud/FISHMAR-data/rq2/test_preferential" # MNO
+datadir <- "~/Documents/SESYNC/Files/FISHMAR-data/rq2/test_preferential"
 time_data <- read.csv(file.path(datadir, "timeseries.csv"), as.is=T)
 names(time_data)[1]<-"group_name" # change column name
 
