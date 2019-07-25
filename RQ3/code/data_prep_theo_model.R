@@ -16,6 +16,7 @@ stock_status <- read.csv("./mexico/processed/data_RQ3_filtered.csv")
 monthly_effort <- read.csv("./mexico/processed/laura/RQ3_monthly_dataset_lge.csv")
 catchability <- read.csv("./mexico/processed/laura/coop_catchability_coeffecient.csv")
 bio <- read.csv("./mexico/processed/biological_data_RQ3.csv")
+fmsy <- read.csv("./rq3/stock_assessments/results_MSY_rq3.csv")
 
 # clean names 
 setnames(stock_status, old=c("X...Coop_Id","Cooperative.name","Abalone","Clams","Lobsters","Sea.cucumber","Snails"), new=c("coop_id", "coop_name","stock_abalone","stock_clams","stock_lobsters","stock_seacucumber","stock_snails"))
@@ -77,6 +78,31 @@ ab <- merge(ab,sn[ ,c("coop_name","Bmsy_snails")],by="coop_name",all=T)
 # add to main data
 stock_monthly <- merge(stock_monthly,ab,by="coop_name",all=T)
 
+### add fmsy
+# create individual files
+colnames(fmsy)[colnames(fmsy)=="Subregion"] <- "coop_name" 
+ab <- fmsy[(fmsy$Group=="Abalone"),]
+cl <- fmsy[(fmsy$Group=="Clams"),]
+lo <- fmsy[(fmsy$Group=="Lobsters"),]
+se <- fmsy[(fmsy$Group=="Sea cucumber"),]
+sn <- fmsy[(fmsy$Group=="Snails"),]
+
+# change column names 
+colnames(ab)[colnames(ab)=="F_msy"] <- "Fmsy_abalone" 
+colnames(cl)[colnames(cl)=="F_msy"] <- "Fmsy_clams" 
+colnames(lo)[colnames(lo)=="F_msy"] <- "Fmsy_lobsters" 
+colnames(se)[colnames(se)=="F_msy"] <- "Fmsy_seacucumber" 
+colnames(sn)[colnames(sn)=="F_msy"] <- "Fmsy_snails" 
+
+# merge sub-files (bio)
+ab <- merge(ab[ ,c("coop_name","Fmsy_abalone")],cl[ ,c("coop_name","Fmsy_clams")],by="coop_name",all=T)
+ab <- merge(ab,lo[ ,c("coop_name","Fmsy_lobsters")],by="coop_name",all=T)
+ab <- merge(ab,se[ ,c("coop_name","Fmsy_seacucumber")],by="coop_name",all=T)
+ab <- merge(ab,sn[ ,c("coop_name","Fmsy_snails")],by="coop_name",all=T)
+
+# add to main data
+stock_monthly <- merge(stock_monthly,ab,by="coop_name",all=T)
+
 ### save csv file
 #write.csv(stock_monthly, './mexico/processed/laura/data_monthly_lge.csv',row.names=FALSE)
 
@@ -89,5 +115,7 @@ plot(stock_monthly$m_clams,stock_monthly$h_clams)
 plot(stock_monthly$m_lobsters,stock_monthly$h_lobsters)
 plot(stock_monthly$m_seacucumber,stock_monthly$h_seacucumber)
 plot(stock_monthly$m_snails,stock_monthly$h_snails)
+
+################################# calculations ##########################################################
 
 

@@ -17,9 +17,9 @@ v=0.2;
 Es=1;
 L2=0; %effort-based cost
 
-Lrange=[0 .2]; %volume-based cost
-L2range=[0 2]; %effort-based cost
-Vrange=[0.01:(3-.01)/100:3]; %reference price
+Lrange=[625]; %volume-based cost
+L2range=[63]; %effort-based cost
+Vrange=[100:(2000-100)/100:2000]; %reference price
 writematrix(Vrange,'solutions_x_rq3.csv'); %LGE new
 
 scrsz = get(0,'ScreenSize');
@@ -76,7 +76,7 @@ for L_val=1:length(Lrange)
         plot0=plot(Vrange,Fsols','r','LineWidth',2);
         plot0(2).LineStyle='--';
         
-        ylim([-5 1])
+        %ylim([-5 1])
         xlabel 'reference price (V)'
         ylabel 'harvest rate log_2(F/F_{MSY})'
         title(['marginal costs (I=' num2str(L) ', I_e=' num2str(L2) ')'])

@@ -5,7 +5,7 @@ import numpy as np
 import os
 
 # read data
-df1 = pd.read_csv('/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data//mexico/processed/laura/data_monthly_lge.csv')
+df1 = pd.read_csv('/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/mexico/processed/laura/data_monthly_lge.csv')
 coop = df1['coop_id']
 name = df1['coop_name']
 funct = df1['functionality']
@@ -26,6 +26,11 @@ bmsy_clams = df1['Bmsy_clams']
 bmsy_lobsters = df1['Bmsy_lobsters']
 bmsy_seacucumber = df1['Bmsy_seacucumber']
 bmsy_snails = df1['Bmsy_snails']
+fmsy_abalone = df1['Fmsy_abalone']
+fmsy_clams = df1['Fmsy_clams']
+fmsy_lobsters = df1['Fmsy_lobsters']
+fmsy_seacucumber = df1['Fmsy_seacucumber']
+fmsy_snails = df1['Fmsy_snails']
 
 df2 = pd.read_csv('/Users/lauraelsler/Documents/MATLAB/solutions_open_rq3.csv') # y: solutions open access
 df3 = pd.read_csv('/Users/lauraelsler/Documents/MATLAB/solutions_exclusive_rq3.csv') # y: solutions exlusive access
@@ -48,16 +53,30 @@ plt.ylabel("catch $t$",fontsize=20, **hfont)
 ###! Scatter plot only data
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
-plt.scatter(m_lobsters, np.log2(stock_lobsters/bmsy_lobsters),c=(funct), s=30, marker="s", cmap='viridis')
+plt.scatter((m_lobsters), np.log2(stock_lobsters),c=(funct), s=30, marker="s", cmap='viridis')
 plt.title("lobsters", fontsize= 25, **hfont)
 plt.xlabel("reference price",fontsize=20, **hfont)
 plt.ylabel("log2(b/bmsy)",fontsize=20, **hfont)
-plt.ylim(0,6)
+plt.ylim(-1.5,1)
 plt.xlim(0,1E6)
 cb = plt.colorbar()
 cb.set_label('functionality', rotation=270, labelpad=40, fontsize = 22, **hfont)
 cb.ax.tick_params(labelsize=12)
-# fig.savefig('./figures/abalone_sm.png',dpi=200)
+# fig.savefig('./figures/lobsters_sm_log2.png',dpi=200)
+plt.show()
+
+fig = plt.figure()
+ax1 = fig.add_subplot(111)
+plt.scatter((m_lobsters),(stock_lobsters),c=(funct), s=30, marker="s", cmap='viridis')
+plt.title("lobsters", fontsize= 25, **hfont)
+plt.xlabel("reference price",fontsize=20, **hfont)
+plt.ylabel("b/bmsy",fontsize=20, **hfont)
+# plt.ylim(-1.5,1)
+plt.xlim(0,1E6)
+cb = plt.colorbar()
+cb.set_label('functionality', rotation=270, labelpad=40, fontsize = 22, **hfont)
+cb.ax.tick_params(labelsize=12)
+# fig.savefig('./figures/lobsters_sm.png',dpi=200)
 plt.show()
 
 ###! Scatter plot data and model
@@ -76,7 +95,7 @@ line3, = ax2.plot(x,df3[:,0], color="black",linewidth=3)
 line4, = ax2.plot(x,df3[:,1], color="black",linewidth=3)
 # x-axis
 # ax1.set_xticklabels(np.arange(2001,2016,2), rotation=45, fontsize= 14)
-ax1.set_xlim(0,5E5)
+# ax1.set_xlim(0,5E5)
 # ax1.set_xlabel("Year",fontsize=20, **hfont)
 # ax2.set_xticklabels(np.arange(2001,2016,2), rotation=45, fontsize= 14)
 # ax2.set_xlim(10,tmax-2)
@@ -91,7 +110,7 @@ ax1.set_ylim(-1,6)
 ax2.yaxis.tick_right()
 ax2.yaxis.set_label_position("right")
 # ax2.tick_params(axis='y', colors='silver', labelsize=14)
-ax2.set_ylim(-1,2)
+# ax2.set_ylim(-1,2)
 plt.gcf().subplots_adjust(bottom=0.15,right=0.9)
 # legend
 plt.title('lobsters', fontsize=20, **hfont)
