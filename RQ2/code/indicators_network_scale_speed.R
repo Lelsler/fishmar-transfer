@@ -17,8 +17,8 @@ datadir4 = "~/Nextcloud/FISHMAR-data/comtrade/processed/timeseries"
 # Read data
 data_orig <- read.csv(file.path(datadir, "CT_fish_trade92.csv"), as.is=T)
 
-stocks  = read.csv(file.path(datadir3, "1950_2017_FAO_bbmsy_timeseries_merge.csv"), as.is=T)
-match = read.csv(file.path(datadir4,"matchingstocksHS92.csv"), as.is=T)
+#stocks  = read.csv(file.path(datadir3, "1950_2017_FAO_bbmsy_timeseries_merge.csv"), as.is=T)
+#match = read.csv(file.path(datadir4,"matchingstocksHS92.csv"), as.is=T)
 
 
 trade = trade %>% select(Shortdescription.HS1992, group_name)%>%
@@ -73,16 +73,19 @@ for(i in 1:length(groups)){
     g = graph_from_data_frame(edgelist, directed = TRUE)
     global = transitivity(g, type ="global")
     
-    nodeList = data.frame(Name = igraph::V(g)$name, 
+    nodeList = data.frame(iso3 = igraph::V(g)$name, 
                           ID = c(0:(igraph::vcount(g) - 1))) # make nodelist with ID number
     nodeList = cbind(nodeList, nodeDegree=igraph::degree(g, v = igraph::V(g), mode = "all"), i)
     nodeList = cbind(nodeList, nodeDegree.in=igraph::degree(g, v = igraph::V(g), mode = "in")) #calculate node degree for all nodes in network
-
-    #sum trades per importer and calculate gini
-    ginidat = gdatat %>% select(imp_iso3, quantity_mt) %>%
-      group_by(imp_iso3) %>% summarise(sum_mt = sum(quantity_mt))
     
-    gini = ineq(ginidat$sum_mt,type="Gini")
+    average_degree = mean(nodeList$nodeDegree)
+    
+    ###########################gini, no longer needed???
+    #sum trades per importer and calculate gini 
+    #ginidat = gdatat %>% select(imp_iso3, quantity_mt) %>%
+     #group_by(imp_iso3) %>% summarise(sum_mt = sum(quantity_mt))
+    
+   # gini = ineq(ginidat$sum_mt,type="Gini")
     
     
     # Subset t and t+1
@@ -95,7 +98,9 @@ for(i in 1:length(groups)){
     link_turnover1 <- (length(links_t1)-links_shared) + (length(links_t0)-links_shared)
     
     df <- data.frame(group=groups[i], year=t, n_add=links_added, n_lost=links_deleted,
-                     n_shared=links_shared, n_turnover=link_turnover,clustering = global, gini=gini)
+                     n_shared=links_shared, n_turnover=link_turnover,clustering = global, av_degree = average_degree)
+    
+    df = merge(nodeList, df)
     # Merge into dataframe
     return(df)
     
@@ -104,6 +109,8 @@ for(i in 1:length(groups)){
   # Return data
   # return(out)
   if(i==1){results <- out}else{results <- rbind(results, out)}
-  
+
 }
 
+results = results %>%
+  select(-i, - ID) 
