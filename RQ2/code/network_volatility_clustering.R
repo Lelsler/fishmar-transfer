@@ -148,7 +148,10 @@ volatility_clustering_stocks$clustering = scale(volatility_clustering_stocks$clu
 
 super$year = as.factor(super$year)
 m = glmmTMB(super ~ clustering + gini+ total_collapse + (1|group) , family=gaussian(link="identity"),  data = volatility_clustering_stocks)
-            
+
+m2 = glmmTMB(super ~ clustering+ gini +ar1(period+ 0 | group/stock_id) , family=gaussian(link="identity"),  data = volatility_clustering_stocks)
+
+      
 p <- ggplot(results, aes(x=year, y=gini, group=group, col=group)) +
   geom_line()+ scale_y_continuous(limits = c(0, 1))
 p
