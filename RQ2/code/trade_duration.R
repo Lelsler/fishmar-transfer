@@ -3,8 +3,7 @@
 #clear workspace
 rm(list = ls())
 graphics.off()
-
-#setwd("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/")
+setwd("~/Nextcloud/FISHMAR-data/rq2/trade_duration")
 
 library(tidyverse)
 library(magicfor)
@@ -75,36 +74,43 @@ data <- duration %>%
     }
 }
 
-out_put
+gduration = out_put %>% rename(group_name = group)%>%
+  left_join(duration) %>%
+  distinct()
 
 
+max_trade = gduration%>%group_by(group_name, imp_exp, trade_ID)%>%
+  summarise(max_trade_duration = max(duration))
+
+gduration2 = gduration%>% left_join(max_trade) %>%
+  mutate(actual_duration = ifelse(duration<max_trade_duration, max_trade_duration, duration))
 
 
-
-    duration %>% group_by(group_name, imp_exp)%>%
-      arrange(year)%>% summarise(difftime= difftime(lead(year), year))
+write.csv(gduration2, "actual_trade_duration.csv")
 
 
-try = subset(duration, group_name == "anchovies" & imp_exp == "ABW_USA")
+    
 
-years = try$year
+#try = subset(duration, group_name == "anchovies" & imp_exp == "ABW_USA")
 
-index = 1
+#years = try$year
 
-for (t in 1:length(years)){
+#index = 1
 
-  links <- try[try$year==years[t], ]
-  links1 <- try[try$year==years[t+1], ]
+#for (t in 1:length(years)){
+
+  #links <- try[try$year==years[t], ]
+  #links1 <- try[try$year==years[t+1], ]
   
-  links = na.omit(links)
-  links1 = na.omit(links1)
+ # links = na.omit(links)
+  #links1 = na.omit(links1)
   
-  if(length(links1$new_export) >0){
-  if(links1$duration < links$duration | links1$duration ==  links$duration){index = index +1}
-  }else{index = index}
+  #if(length(links1$new_export) >0){
+  #if(links1$duration < links$duration | links1$duration ==  links$duration){index = index +1}
+ # }else{index = index}
   
-  print(index)
-}
+ # print(index)
+#}
 
 
   
