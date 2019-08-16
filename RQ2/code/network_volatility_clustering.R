@@ -2,13 +2,13 @@
 # Packages
 library(tidyverse)
 library(igraph)
-library(ineq)
+#library(ineq)
 library(sjstats)
 library(glmmTMB)
 
 # Directories
 datadir <- "~/Nextcloud/FISHMAR-data/rq2/test_preferential"
-datadir2 = "~/Nextcloud/FISHMAR-data/rq2/trade_duration_AG"
+datadir2 = "~/Nextcloud/FISHMAR-data/rq2/trade_duration/"
 datadir3 = "~/Nextcloud/FISHMAR-data/fao_stock_status"
 datadir4 = "~/Nextcloud/FISHMAR-data/comtrade/processed/timeseries"
 
@@ -18,9 +18,11 @@ data_orig <- read.csv(file.path(datadir, "CT_fish_trade92.csv"), as.is=T)
 stocks  = read.csv(file.path(datadir3, "1950_2017_FAO_bbmsy_timeseries_merge.csv"), as.is=T)
 match = read.csv(file.path(datadir4,"matchingstocksHS92.csv"), as.is=T)
 
+#trade_collapse <- read.csv(file.path(datadir, "trade_collapse.csv"), as.is=T)
+trade_duration <- read.csv(file.path(datadir2, "actual_trade_duration.csv"), as.is=T)
 
-trade = trade %>% select(Shortdescription.HS1992, group_name)%>%
-  distinct()
+#trade = trade %>% select(Shortdescription.HS1992, group_name)%>%
+  #distinct()
 
 
 
@@ -40,8 +42,9 @@ match = match %>% select(Shortdescription.HS1992, comm_name, sci_name)%>%
 
 match = data %>% left_join(match)
 
-stocks = stocks %>% select(sci_name, comm_name, super, year) %>% 
-  left_join(match) %>% filter(!is.na(super))%>% filter(!is.na(hs92desc))
+stocks = stocks %>% select(sci_name, comm_name, super, year, iso3) %>% 
+  rename(exp_iso3 = iso3)%>% left_join(match) %>% 
+  filter(!is.na(super))%>% filter(!is.na(hs92desc))
 # Build data
 ################################################################################
 
@@ -73,10 +76,10 @@ for(i in 1:length(groups)){
     
     
     #sum trades per importer and calculate gini
-    ginidat = gdatat %>% select(imp_iso3, quantity_mt) %>%
-      group_by(imp_iso3) %>% summarise(sum_mt = sum(quantity_mt))
+    #ginidat = gdatat %>% select(imp_iso3, quantity_mt) %>%
+     # group_by(imp_iso3) %>% summarise(sum_mt = sum(quantity_mt))
     
-    gini = ineq(ginidat$sum_mt,type="Gini")
+    #gini = ineq(ginidat$sum_mt,type="Gini")
     
     
     # Subset t and t+1
@@ -89,7 +92,7 @@ for(i in 1:length(groups)){
     link_turnover1 <- (length(links_t1)-links_shared) + (length(links_t0)-links_shared)
     
     df <- data.frame(group=groups[i], year=t, n_add=links_added, n_lost=links_deleted,
-                     n_shared=links_shared, n_turnover=link_turnover,clustering = global, gini=gini)
+                     n_shared=links_shared, n_turnover=link_turnover,clustering = global)
     # Merge into dataframe
     return(df)
     
@@ -111,58 +114,52 @@ for(i in 1:length(groups)){
 #results = results %>% filter(group == "anchovies" | group == "cod" |group == "lobster" | group == "crab" | group == "mackerel")
 
 
-trade_collapse <- read.csv(file.path(datadir, "trade_collapse.csv"), as.is=T)
-trade_duration <- read.csv(file.path(datadir2, "exports_test.csv"), as.is=T)
 
-trade_collapse <- trade_collapse %>% 
-  rename(year=t, hs92desc=Shortdescription.HS1992, hs92code=Code.HS1992,
-         exp_iso3=iso3, imp_iso3=imp.iso3, value_usd=v, quantity_mt=q, group=group_name, edge = group)
+#trade_collapse <- trade_collapse %>% 
+  #rename(year=t, hs92desc=Shortdescription.HS1992, hs92code=Code.HS1992,
+       #  exp_iso3=iso3, imp_iso3=imp.iso3, value_usd=v, quantity_mt=q, group=group_name, edge = group)
 
-trade_duration <- trade_duration %>% 
-  rename(year=t,
-         exp_iso3=iso3, imp_iso3=imp.iso3, group=group_name)%>%
+trade_duration <- trade_duration %>% rename(group = group_name)%>%
   select(-X)
 
-#filter for trades that are only 1 year
-trade_duration_sum = trade_duration %>% filter(duration >1) %>%
-  group_by(year, group) %>%
-  summarise(mean_duration = mean(duration))
+#probably do not have to do this anymore we can just use the actual duration now
+#trade_duration_sum = trade_duration %>% filter(duration >1) %>%
+  #group_by(year, group) %>%
+  #summarise(mean_duration = mean(duration))
 
 #trade collapse summary
-trade_collapse_sum = trade_collapse %>% 
-  filter(!is.na(collapse)) %>%
-  group_by(year, group) %>%
-  summarise(total_collapse = sum(collapse))
+#not using the trade collapses for now
+#trade_collapse_sum = trade_collapse %>% 
+#  filter(!is.na(collapse)) %>%
+ # group_by(year, group) %>%
+ # summarise(total_collapse = sum(collapse))
 
-volatility_clustering = results %>% left_join(trade_duration_sum)%>%
-  left_join(trade_collapse_sum)
+volatility_clustering = results %>% left_join(trade_duration)
 
 
 volatility_clustering_stocks = volatility_clustering %>% left_join(stocks) %>%
   distinct()
 
-volatility_clustering_stocks$total_collapse = scale(volatility_clustering_stocks$total_collapse)
-volatility_clustering_stocks$gini = scale(volatility_clustering_stocks$gini)
+volatility_clustering_stocks$n_turnover = scale(volatility_clustering_stocks$n_turnover)
+volatility_clustering_stocks$actual_duration = scale(volatility_clustering_stocks$actual_duration)
 volatility_clustering_stocks$clustering = scale(volatility_clustering_stocks$clustering)
 
 
-super$year = as.factor(super$year)
-m = glmmTMB(super ~ clustering + gini+ total_collapse + (1|group) , family=gaussian(link="identity"),  data = volatility_clustering_stocks)
+volatility_clustering_stocks$group = as.factor(volatility_clustering_stocks$group)
+volatility_clustering_stocks$year = as.factor(volatility_clustering_stocks$year)
 
-m2 = glmmTMB(super ~ clustering+ gini +ar1(period+ 0 | group/stock_id) , family=gaussian(link="identity"),  data = volatility_clustering_stocks)
+m = glmmTMB(super ~ clustering + actual_duration+ n_turnover + (1|group) , family=Gamma(link="log"),  data = volatility_clustering_stocks)
 
-      
-p <- ggplot(results, aes(x=year, y=gini, group=group, col=group)) +
-  geom_line()+ scale_y_continuous(limits = c(0, 1))
-p
+m2 = glmmTMB(super ~ clustering + actual_duration+ n_turnover + ar1(year+ 0 | group) , family=Gamma(link="log"),  data = volatility_clustering_stocks)
+
+volatility_clustering_stocks$overexploited = as.factor(ifelse(volatility_clustering_stocks$super < 0.7, 1, 0))
+
+volatility_clustering_stocks = volatility_clustering_stocks %>%
+  mutate(stock = as.factor(paste0(group, "_", exp_iso3, "_", comm_name)))
+  
+m3 = glmmTMB(overexploited ~ clustering + actual_duration+ n_turnover + (1|year) + (1|stock)+ (1|group), family= binomial, data = volatility_clustering_stocks)
 
 
-
-
-
-p1 <- ggplot(results, aes(x=year, y=clustering, group=group, col=group)) +
-  geom_line() + scale_y_continuous(limits = c(0, 1))
-p1
 #plot(n_turnover ~ year, d, type="l")
 
 #write.csv(results, "gini_and_clustering.csv")
