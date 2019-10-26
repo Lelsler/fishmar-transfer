@@ -59,3 +59,13 @@ colnames(mean_gov_eff_2001) = c("effectiveness", "year", "iso3")
 
 gov_eff = rbind(mean_gov_eff_2001, gov_eff)
 
+### rename columns
+data <- data_orig %>% 
+  rename(year=t, hs92desc=Shortdescription.HS1992, hs92code=Code.HS1992,
+         exp_iso3=iso3, imp_iso3=imp.iso3, value_usd=v, quantity_mt=q, group=group_name)
+
+colnames(mat1)[colnames(mat1)=="Shortdescription.HS1992"] <- "HS92" # an alternative way of reanming is # mat1 = mat1 %>% rename(HS92 = Shortdescription.HS1992)
+
+names(gov)[2]<-"year" # change column name
+
+time_data$predictor[time_data$predictor=="weighted_super"] = "B/Bmsy"
