@@ -1,3 +1,10 @@
+### ### ### ### ### ### ### ### THIS FILE GATHERS CODE EXAMPLES ### ### ### ### ### ### ### ### ### ### ### ### 
+
+### tests on the data
+#duplicates in ID
+CT92_to_fao_trade$ID_FAOTrade[duplicated(CT92_to_fao_trade$ID_FAOTrade)]
+
+
 ### how to concatenate two columns in a new column ###
 dat <- read.table(textConnection(
   "C1  C2  C3  C4  C5
