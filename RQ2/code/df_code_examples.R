@@ -3,7 +3,17 @@
 ### tests on the data
 #duplicates in ID
 CT92_to_fao_trade$ID_FAOTrade[duplicated(CT92_to_fao_trade$ID_FAOTrade)]
+# number of occurrences of unique values in a column
+test <- table(trade$Shortdescription.HS1992) #which Shortdescription.HS1992 exist how often in the actual trade data?
+# compares two columns and outputs unique values not contained in the second column (b)
+a[!(a %in% b)]
+# outputs unique values in a column
+unique(df$x)
 
+
+### remove columns
+# by column name
+df = subset(mydata, select = -c(x,z) ) # keep all but x,z
 
 ### how to concatenate two columns in a new column ###
 dat <- read.table(textConnection(
