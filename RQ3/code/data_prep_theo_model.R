@@ -4,10 +4,11 @@ graphics.off()
 
 # libraries
 library(readr)
-#library(dplyr)
+library(dplyr)
 library(tidyverse)
 library(plotly)
 library(TTR)
+library(data.table)
 
 setwd("/Users/lauraelsler/Documents/SESYNC/Files/FISHMAR-data/")
 
@@ -117,5 +118,12 @@ plot(stock_monthly$m_seacucumber,stock_monthly$h_seacucumber)
 plot(stock_monthly$m_snails,stock_monthly$h_snails)
 
 ################################# calculations ##########################################################
+# calc new columns for reference cost/benefit V for each species
+stock_monthly$v_abalone = (stock_monthly$value_abalone-(stock_monthly$value_abalone*0.914))/log(stock_monthly$catch_abalone)
+stock_monthly$v_clams = (stock_monthly$value_clams-(stock_monthly$value_clams*0.914))/log(stock_monthly$catch_clams)
+stock_monthly$v_lobsters = (stock_monthly$value_lobsters-(stock_monthly$value_lobsters*0.914))/log(stock_monthly$catch_lobsters)
+stock_monthly$v_seacucumber = (stock_monthly$value_seacucumber-(stock_monthly$value_seacucumber*0.914))/log(stock_monthly$value_seacucumber)
+stock_monthly$v_snails = (stock_monthly$value_snails-(stock_monthly$value_snails*0.914))/log(stock_monthly$catch_snails)
+
 
 
