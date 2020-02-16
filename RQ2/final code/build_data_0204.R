@@ -170,5 +170,7 @@ volatility_duration_stocks = volatility_duration_clean %>% left_join(stocks_edit
 # save data 
 #write.csv(volatility_duration_stocks, "~/Documents/SESYNC/Files/FISHMAR-data/rq2/final_push/data/RQ2_data_covariates_0204.csv")
 
+final_data <- read.csv(file.path(datadir2, "RQ2_data_covariates_0204.csv"), as.is=T)
+
 
 
